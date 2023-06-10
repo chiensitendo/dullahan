@@ -6,7 +6,10 @@
 }
 
 body {
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'IBM Plex Sans';
+}
+p {
+    color: #161616;
 }
 
 .body-compact-02 {
@@ -14,4 +17,39 @@ body {
     line-height: 22px;
     letter-spacing: 0;
     font-weight: 400;
+}
+
+.body-02 {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.header-text {
+    font-style: normal;
+    font-weight: 300;
+    font-size: 80px;
+    line-height: 80px;
+    @media screen and (max-width: 1024px) {
+        font-size: 24px;
+        line-height: 32px;
+    }
+
+}
+
+.heading-04 {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 36px;
+}
+.center-in-the-right {
+    right: 16px;
+    top: 50%;
+    transform: translate(calc(50% - 16px), -50%);
+}
+
+.border-top-2-black {
+    border-top: 2px solid #000000;
 }

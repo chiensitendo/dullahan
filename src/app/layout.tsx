@@ -24,7 +24,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap" rel="stylesheet"/>
         </Head>
       <body className={inter.className}>
-        <Header enterCode/>
+        <Header/>
         <div>{children}</div>
       </body>
     </html>
