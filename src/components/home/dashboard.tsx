@@ -8,7 +8,7 @@ import { EnterCode } from "../Header";
 const DashboardStep = (props: { text: string[] }) => {
     const { text } = props;
     return <div className="mb-4 w-1/3 pr-0.5">
-        <SecondaryButton className="body-02 h-full" style={{
+        <SecondaryButton className="body-02 h-full btn-secondary" style={{
             padding: "1rem", width: "100%"
         }}>
             <div className="self-start mt-0.5"><PlayFilledAlt className="self-start mr-2 fill-pinky w-5 h-5" /></div>
@@ -31,7 +31,7 @@ const DashboardComponent = () => {
             <DashboardStep text={['Actionable insights.']} />
             <DashboardStep text={['Future financial', 'planning']} />
         </div>
-        <PrimaryButton renderIcon={ArrowRight}
+        <PrimaryButton className="btn-primary" renderIcon={ArrowRight}
             style={{ width: "100%", maxWidth: "unset", height: "fit-content", padding: "16px 16px 32px 16px" }}>Try it now</PrimaryButton>
     </div>;
 
@@ -39,7 +39,7 @@ const DashboardComponent = () => {
         <div className="w-1/2 flex items-center h-full pb-1">
             <div className="ml-8 border border-solid border-strong w-1/4 mr-4 self-end" style={{marginBottom: "-0.5px"}}></div>
             <div className="flex h-full flex-col w-full">
-                <div className="h-full flex items-center">
+                <div className="h-full flex items-center justify-center">
                     <img src="/images/illus_hero.svg" />
                 </div>
                 <div className="border-solid border-interactive w-full self-end" style={{ borderWidth: "3px", marginBottom: "-3px" }}></div>

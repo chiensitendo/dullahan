@@ -16,7 +16,9 @@ module.exports = {
         pinky: '#FBA3FF'
       },
       colors: {
-        footer: '#94F0F0'
+        footer: '#94F0F0',
+        secondary: '#232323',
+        primary: '#0F62FE'
       },
       textColor: {
         link: '#78A9FF',
