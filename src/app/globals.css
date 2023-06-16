@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+.btn-secondary {
+  background-color: #232323;
+}
+
+.btn-primary {
+  background-color: #0F62FE;
+}
+
 /* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

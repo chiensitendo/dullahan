@@ -1,4 +1,6 @@
 
+
+
 @use '@carbon/react';
 @use '@carbon/colors' as colors;
 
@@ -12,6 +14,8 @@
 @include grid.flex-grid();
 
 @import "variables";
+
+
 
 .background {
     background-color: colors.$gray-100;
@@ -91,13 +95,7 @@ p {
     border-top: 2px solid #000000;
 }
 
-.btn-secondary {
-    background-color: #232323;
-}
 
-.btn-primary {
-    background-color: #0F62FE;
-}
 .mb-3p {
     margin-bottom: 3.5px;
 }
