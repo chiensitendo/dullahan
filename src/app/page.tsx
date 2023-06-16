@@ -9,7 +9,7 @@ export default function Home() {
       <div className="flex background pb-20">
         <DashboardComponent/>
       </div>
-      <div className="py-20 pl-8">
+      <div className="py-20">
         <AboutComponent/>
       </div>
       <HomeFooter/>

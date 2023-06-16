@@ -1218,6 +1218,20 @@
     "@carbon/type" "^11.19.0"
     "@ibm/plex" "6.0.0-next.6"
 
+"@carbon/styles@^1.31.1":
+  version "1.31.1"
+  resolved "https://registry.yarnpkg.com/@carbon/styles/-/styles-1.31.1.tgz#14839da34b697de3c595c732f7da86d9135c66bc"
+  integrity sha512-y0XIV0YN497uat4pZ1V8thWOeM1hZppYP5aFxHjy2nixI6vLHjk8LgoPFFp1fbhdHRGmukKKKj/2dVj0xcjvVQ==
+  dependencies:
+    "@carbon/colors" "^11.16.0"
+    "@carbon/feature-flags" "^0.15.0"
+    "@carbon/grid" "^11.15.0"
+    "@carbon/layout" "^11.15.0"
+    "@carbon/motion" "^11.12.0"
+    "@carbon/themes" "^11.20.0"
+    "@carbon/type" "^11.19.0"
+    "@ibm/plex" "6.0.0-next.6"
+
 "@carbon/telemetry@0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@carbon/telemetry/-/telemetry-0.1.0.tgz#57b331cd5a855b4abbf55457456da8211624d879"
@@ -4047,10 +4061,10 @@ safe-regex-test@^1.0.0:
     get-intrinsic "^1.1.3"
     is-regex "^1.1.4"
 
-sass@^1.63.3:
-  version "1.63.3"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.63.3.tgz#527746aa43bf2e4eac1ab424f67f6f18a081061a"
-  integrity sha512-ySdXN+DVpfwq49jG1+hmtDslYqpS7SkOR5GpF6o2bmb1RL/xS+wvPmegMvMywyfsmAV6p7TgwXYGrCZIFFbAHg==
+sass@^1.63.4:
+  version "1.63.4"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.63.4.tgz#caf60643321044c61f6a0fe638a07abbd31cfb5d"
+  integrity sha512-Sx/+weUmK+oiIlI+9sdD0wZHsqpbgQg8wSwSnGBjwb5GwqFhYNwwnI+UWZtLjKvKyFlKkatRK235qQ3mokyPoQ==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"

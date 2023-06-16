@@ -1,5 +1,17 @@
+
 @use '@carbon/react';
 @use '@carbon/colors' as colors;
+
+// If you're including all the styles for Carbon
+@use '@carbon/styles';
+
+// Or if you're wanting to use just the grid
+@use '@carbon/styles/scss/grid';
+
+// Emit the flex-grid styles
+@include grid.flex-grid();
+
+@import "variables";
 
 .background {
     background-color: colors.$gray-100;
@@ -12,11 +24,24 @@ p {
     color: #161616;
 }
 
+.body-compact-01 {
+    font-size: 14px;
+    line-height: 18px;
+    letter-spacing: 0;
+    font-weight: 400;
+}
+
 .body-compact-02 {
     font-size: 16px;
     line-height: 22px;
     letter-spacing: 0;
     font-weight: 400;
+}
+.heading-03 {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 28px;
 }
 
 .body-02 {
@@ -31,11 +56,16 @@ p {
     font-weight: 300;
     font-size: 80px;
     line-height: 80px;
-    @media screen and (max-width: 1024px) {
-        font-size: 24px;
-        line-height: 32px;
+    @media screen and (max-width: $large_breakpoint) {
+        font-size: 42px;
+        line-height: 50px;
     }
-
+    @media screen and (min-width: $large_breakpoint) and (max-width: $max_breakpoint) {
+        &.header-text-1 {
+            font-size: 72px;
+            line-height: 72px;
+        }
+    }
 }
 
 .heading-04 {
@@ -43,6 +73,13 @@ p {
     font-weight: 400;
     font-size: 28px;
     line-height: 36px;
+
+    @media screen and (max-width: $large_breakpoint) {
+        font-size: 20px;
+        line-height: 28px;
+    }
+
+    
 }
 .center-in-the-right {
     right: 16px;
@@ -60,4 +97,99 @@ p {
 
 .btn-primary {
     background-color: #0F62FE;
+}
+.mb-3p {
+    margin-bottom: 3.5px;
+}
+
+.d-container {
+    height: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    @media screen and (min-width: $max_breakpoint) {
+        min-width: 1536px;
+        max-width: 1536px;
+    }
+    @media screen and (max-width: $max_breakpoint) {
+        min-width: none;
+        width: 100%;
+    }
+}
+
+.large_none_container {
+    @media screen and (min-width: $large_breakpoint) and (max-width: $x_large_breakpoint) {
+        display: none;
+    }
+}
+
+.gray-line {
+    width: 100%;
+    margin-bottom: -1px;
+    @media screen and (min-width: $large_breakpoint) and (max-width: $max_breakpoint) {
+        width: 32px;
+    }
+    @media screen and (max-width: $large_breakpoint) {
+        &:not(.gray-line-left) {
+            width: 16px;
+        }
+        &.gray-line-left {
+            width: 27px;
+        }
+        
+    }
+}
+
+.backgrounddd {
+    background-image: url(/images/wave_grid_2.svg);
+    background-position: left center;
+    background-repeat: no-repeat;
+}
+
+.d-left-child {
+    @media screen and (min-width: $large_breakpoint) and (max-width: $max_breakpoint) {
+        padding-right: 0px;
+    }
+    @media screen and (max-width: $large_breakpoint) {
+        position: relative;
+    }
+}
+
+.d-left-gray-line {
+    width: 1rem;
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+}
+
+.btn-dashboard-step {
+    width: calc(100% / 3);
+    padding-right: 0.125rem;
+    margin-bottom: 1rem;
+    @media screen and (max-width: $large_breakpoint) {
+        width: 100%;
+        padding-right: 0;
+        margin-bottom: 0.125rem;
+        &:last-child {
+            margin-bottom: 1rem;
+        }
+    }
+}
+
+.dashboard-step-group {
+    display: flex;
+    flex-direction: row;
+    @media screen and (max-width: $large_breakpoint) {
+        flex-direction: column;
+        & button {
+            max-width: unset;
+        }
+    }
+}
+
+.heading-03-body-02 {
+    @extend .heading-03;
+    @media screen and (max-width: $large_breakpoint) {
+        font-size: 16px;
+        line-height: 24px;
+    }
 }
