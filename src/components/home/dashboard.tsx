@@ -1,8 +1,14 @@
 'use client';
-import React from "react";
+import React, { useEffect } from "react";
 import { PrimaryButton, SecondaryButton } from "carbon-components-react";
 import { PlayFilledAlt, ArrowRight } from "@carbon/icons-react";
 import { EnterCode } from "../Header";
+import { RootState } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router";
+import { clearShouldTryIt, startNewSesson, triggerEnterCode } from "@/redux/notiSlice";
+import useAuth from "../use-auth";
+import { FORM_LINK } from "@/type/const";
 
 
 const DashboardStep = (props: { text: string[] }) => {
@@ -22,7 +28,23 @@ const DashboardStep = (props: { text: string[] }) => {
 }
 
 const DashboardComponent = () => {
-
+    const {shouldTryIt, shouldTrySession} =  useSelector((state: RootState) => state.notification);
+    const router = useRouter();
+    const dispatch = useDispatch();
+    const auth = useAuth();
+    useEffect(() => {
+        if (shouldTryIt && shouldTrySession) {
+            dispatch(clearShouldTryIt());
+            auth.clearAuth();
+            auth.setAuth({
+                access_token: shouldTrySession.access_token,
+                expires_in: shouldTrySession.expires_in,
+                refresh_token: shouldTrySession.refresh_token,
+                token_type: shouldTrySession.token_type
+            });
+            router.push(FORM_LINK);
+        }
+    },[shouldTryIt, shouldTrySession]);
     return <div className="w-full pt-7">
         <div className="relative backgrounddd" style={{ minHeight: 496, maxHeight: 496 }}>
             <div className="absolute bottom-0 left-0 w-full h-full flex items-center justify-center">
@@ -44,7 +66,11 @@ const DashboardComponent = () => {
                                         <DashboardStep text={['Financial Forecasting']} />
                                     </div>
                                     <PrimaryButton className="btn-primary" renderIcon={ArrowRight}
-                                        style={{ width: "100%", maxWidth: "unset", height: "fit-content", padding: "16px 16px 32px 16px" }}>
+                                        style={{ width: "100%", maxWidth: "unset", height: "fit-content", 
+                                        padding: "16px 16px 32px 16px" }} 
+                                        onClick={() => {
+                                            dispatch(startNewSesson());
+                                        }}>
                                         Try it now</PrimaryButton>
                                 </div>
                             </div>
@@ -85,7 +111,7 @@ const DashboardComponent = () => {
                 <div className="cds--row">
                     {/* Left Part */}
                     <div className="cds--col-max-8 cds--col-xlg-8 cds--col-lg-8 cds--col-md-4 cds--col-sm-2">
-                    <div className="flex items-center self-start"><EnterCode /></div>
+                    <div className="flex items-center self-start"><EnterCode onClick= {() => {dispatch(triggerEnterCode(true))}} /></div>
                     </div>
                     {/* Left Part */}
 

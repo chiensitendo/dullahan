@@ -13,8 +13,10 @@
 // Emit the flex-grid styles
 @include grid.flex-grid();
 
+
 @import "variables";
 
+@import "component";
 
 
 .background {
@@ -35,6 +37,20 @@ p {
     font-weight: 400;
 }
 
+.helper-text-01 {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.helper-text-02 {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 18px;
+}
+
 .body-compact-02 {
     font-size: 16px;
     line-height: 22px;
@@ -47,12 +63,46 @@ p {
     font-size: 20px;
     line-height: 28px;
 }
+.heading-01 {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.heading-02 {
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+}
 
 .body-02 {
     font-style: normal;
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
+}
+
+.body-01 {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.label-01 {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.label-02 {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
 }
 
 .header-text {
@@ -84,6 +134,18 @@ p {
     }
 
     
+}
+.heading-05 {
+    font-style: normal;
+    font-weight: 300;
+    font-size: 32px;
+    line-height: 40px;
+}
+.heading-06 {
+    font-size: 42px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 50px;
 }
 .center-in-the-right {
     right: 16px;
@@ -190,4 +252,36 @@ p {
         font-size: 16px;
         line-height: 24px;
     }
+}
+
+
+.h-container {
+    @media screen and (min-width: $max_breakpoint) {
+        min-width: 1600px;
+        max-width: 1600px;
+    }
+    @media screen and (max-width: $max_breakpoint) {
+        min-width: unset;
+        width: 100%;
+        &:not(.h-container-no-padding) {
+            padding-left: 3rem;
+            padding-right: 3rem;
+        }
+        
+    }
+}
+
+.cds--text-input__label-wrapper {
+    --cds-layout-density-padding-inline-local: clamp(var(--cds-layout-density-padding-inline-min), var(--cds-layout-density-padding-inline, var(--cds-layout-density-padding-inline-normal)), var(--cds-layout-density-padding-inline-max));
+    border-bottom: 1px solid #E0E0E0;
+    padding: 0 var(--cds-layout-density-padding-inline-local);
+    @extend .label-01;
+}
+
+.modal { 
+    background-color: var(--cds-overlay,hsla(0,0%,9%,.5));
+    z-index: 49;
+    width: 100vw;
+    height: 100vh;
+    content: '';
 }
