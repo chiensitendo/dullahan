@@ -696,7 +696,7 @@ const ResultPage: NextPage = () => {
                   >
                     <img
                       className="w-full"
-                      src="/images/illus-saving-target.svg"
+                      src="/images/saving.svg"
                     />
                   </div>
                 </div>

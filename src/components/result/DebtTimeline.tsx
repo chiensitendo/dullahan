@@ -149,7 +149,7 @@ const DebtTimeline = ({ items }: { items: Timeline[] }) => {
           <p className="heading-06-05 text-white pb-4 pt-6">
             Achieve your financial goals with financial knowledge
           </p>
-          <img className="w-full max-w-full" src="/images/illus-timeline.svg" />
+          <img className="w-full max-w-full" src="/images/timeline.svg" />
         </div>
         <div className="timeline-content">{list}</div>
       </div>
