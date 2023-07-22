@@ -17,7 +17,8 @@ export enum ExpenseType {
 
 export enum VALIDATION_TYPE {
     REQUIRED = 1,
-    INVALID = 2
+    INVALID = 2,
+    LARGER_ZERO = 3
 }
 
 export enum BUDGET_STATUS  {
@@ -84,7 +85,8 @@ export interface Debt {
     name: string,
     payment_deadline?: string,
     remaining_amount: number,
-    type: string
+    type: string,
+    session_id?: number
 }
 
 export interface UserSeason {
@@ -112,6 +114,7 @@ export interface UserSeason {
     monthly_net_flow: number,
     retirement_plan: number,
     status: string,
+    full_status: string,
     total_all_expense: number,
     total_all_income: number,
     total_essential_expense: number,
@@ -119,4 +122,25 @@ export interface UserSeason {
     total_non_essential_expense: number,
     updated_at: string,
     user_agent: string
+}
+
+export interface LineCharData {
+    asset: number,
+    debt: number,
+    group: string,
+    key: string
+}
+
+export interface LineChartDataResponse {
+    data: LineCharData[]
+}
+
+export interface Timeline {
+    date: string;
+    description: string;
+    event: string;
+}
+
+export interface TimelineChartDataResponse {
+    data: Timeline[];
 }

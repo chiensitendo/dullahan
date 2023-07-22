@@ -4,6 +4,7 @@ import MultiplesEssentialExpensesFields from "@/components/financial-information
 import SummaryInfo from "@/components/information/summary-info";
 import withAuth from "@/components/with-auth";
 import withLoading from "@/components/with-loading";
+import { clearForm } from "@/redux/formSlice";
 import { RootState } from "@/redux/store";
 import { SECTION_TABS, setIsAdvanceAction } from "@/redux/tabSlice";
 import { Toggle } from "carbon-components-react";
@@ -54,30 +55,23 @@ const AdvanceOption = ({ checked, onToggle }: { checked: boolean, onToggle: (che
 
 
 const HomePage: NextPage = (props) => {
-    const {authData, loading} = props as any;
+    const {authData, loading, setIsNew} = props as any;
 
     const { form, tab } = useSelector((state: RootState) => state);
-    const {code} = form;
+    const {code, selections} = form;
     const dispatch = useDispatch();
     const {push} = useRouter();
     const handleOnToggle = (checked: boolean) => {
         dispatch(setIsAdvanceAction(checked));
     }
 
-    // useEffect(() => {
-    //     window.onbeforeunload = function(){
-    //         return '';
-    //       };
-    //       window.close = function(){
-    //         return '';
-    //        };
-    // }, []);
-
     useEffect(() => {
         if (code) {
-            push("/info?code=" + code);
+            setIsNew(false);
+            push("/result");
+            dispatch(clearForm());
         }
-    },[code, push]);
+    },[code, push, setIsNew, dispatch]);
 
     return <div className="h-full w-full bg-background">
         <div className="sticky top-16 left-0 w-full flex items-center justify-center z-10">
@@ -100,7 +94,7 @@ const HomePage: NextPage = (props) => {
                 <div className="cds--col-max-8 cds--col-xlg-8 cds--col-lg-8 cds--col-md-6 cds--col-sm-3 bg-white">
                     <FinancialInformation form={form} isAdvanceAction={tab.isAdvanceAction} auth={authData} 
                     loading = {loading} />
-                    <MultiplesEssentialExpensesFields />
+                    <MultiplesEssentialExpensesFields selections={selections} />
                 </div>
                 <div className="cds--col-max-4 cds--col-xlg-4 cds--col-lg-4 cds--col-md-2 cds--col-sm-1 sticky right-0 h-fit"
                     style={{ top: 'calc(68px + 64px + 32px)', paddingLeft: 0, paddingRight: 0 }}>

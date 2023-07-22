@@ -9,13 +9,14 @@ import { useRouter } from "next/router";
 import { clearShouldTryIt, startNewSesson, triggerEnterCode } from "@/redux/notiSlice";
 import useAuth from "../use-auth";
 import { FORM_LINK } from "@/type/const";
+import { clearForm } from "@/redux/formSlice";
 
 
 const DashboardStep = (props: { text: string[] }) => {
     const { text } = props;
     return <div className="btn-dashboard-step">
         <SecondaryButton className="body-02 h-full btn-secondary" style={{
-            padding: "1rem", width: "100%", height: "100%"
+            padding: "1rem", width: "100%", height: "100%", cursor: 'default'
         }}>
             <span className="self-start mr-2 mt-1 w-5 h-5"><PlayFilledAlt className="fill-pinky" /></span>
             <span className="self-start w-full">{text.map((val, index) => {
@@ -35,12 +36,14 @@ const DashboardComponent = () => {
     useEffect(() => {
         if (shouldTryIt && shouldTrySession) {
             dispatch(clearShouldTryIt());
+            dispatch(clearForm());
             auth.clearAuth();
             auth.setAuth({
                 access_token: shouldTrySession.access_token,
                 expires_in: shouldTrySession.expires_in,
                 refresh_token: shouldTrySession.refresh_token,
-                token_type: shouldTrySession.token_type
+                token_type: shouldTrySession.token_type,
+                is_new: true
             });
             router.push(FORM_LINK);
         }

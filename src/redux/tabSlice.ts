@@ -17,7 +17,7 @@ export enum SECTION_TABS {
 
 const initialState: TabState = {
   activeTab: SECTION_TABS.INCOME,
-  isAdvanceAction: false
+  isAdvanceAction: true
 }
 
 export const tabSlice = createSlice({

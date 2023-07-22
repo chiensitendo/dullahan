@@ -7,6 +7,8 @@ import {
   editCustomerExpense,
   editCustomerIncomes,
   getCustomerMe,
+  getLineChartData,
+  getTimelineLineChartData,
   resumeASeason,
   startNewSeason,
 } from "@/apis/apis";
@@ -27,6 +29,7 @@ import {
   CustomerIncomeCreationDataRequest,
 } from "@/type";
 import { setIsLoading, setNotification, startNewSessonFailure, startNewSessonSuccess, submitCodeFailure, submitCodeSuccess } from "./notiSlice";
+import { getCustomerMeDataFailure, getCustomerMeDataSuccess, getLineChartDataSuccess, getTimelineChartDataFailure, getTimelineChartDataSuccess } from "./customerSlice";
 
 // export function* startNewSeasonSaga() {
 //     try {
@@ -254,6 +257,60 @@ export function* getFormData(action: PayloadAction<{ auth: AuthData }>) {
   }
 }
 
+export function* getCustomerMeData(action: PayloadAction<{ auth: AuthData }>) {
+  try {
+    yield put(setIsLoading(true));
+    let result: Response = yield call(getCustomerMe, action.payload.auth);
+    yield put(getCustomerMeDataSuccess(result));
+  } catch (e) {
+    yield put(getCustomerMeDataFailure());
+    yield put(
+        setNotification({
+          message: "Server Error! Please try again!",
+          title: "ERROR",
+        })
+      );
+  } finally {
+    yield put(setIsLoading(false));
+  }
+}
+
+export function* getLineChartDataSaga(action: PayloadAction<{ auth: AuthData }>) {
+  try {
+    yield put(setIsLoading(true));
+    let result: Response = yield call(getLineChartData, action.payload.auth);
+    yield put(getLineChartDataSuccess(result));
+  } catch (e) {
+    yield put(getCustomerMeDataFailure());
+    yield put(
+        setNotification({
+          message: "Could not load line chart data! Please try again!",
+          title: "ERROR",
+        })
+      );
+  } finally {
+    yield put(setIsLoading(false));
+  }
+}
+
+export function* getTimelineChartDataSaga(action: PayloadAction<{ auth: AuthData }>) {
+  try {
+    yield put(setIsLoading(true));
+    let result: Response = yield call(getTimelineLineChartData, action.payload.auth);
+    yield put(getTimelineChartDataSuccess(result));
+  } catch (e) {
+    yield put(getTimelineChartDataFailure());
+    yield put(
+        setNotification({
+          message: "Could not load line chart data! Please try again!",
+          title: "ERROR",
+        })
+      );
+  } finally {
+    yield put(setIsLoading(false));
+  }
+}
+
 export function* resumeSesson(
     action: PayloadAction<string>
   ) {
@@ -302,6 +359,9 @@ function* formSaga() {
     takeLatest("form/getFormData", getFormData),
     takeLatest("notification/submitCode", resumeSesson),
     takeLatest("notification/startNewSesson", startSesson),
+    takeLatest("customer/getCustomerMeData", getCustomerMeData),
+    takeLatest("customer/getLineChartData", getLineChartDataSaga),
+    takeLatest("customer/getTimelineChartData", getTimelineChartDataSaga),
   ]);
 }
 

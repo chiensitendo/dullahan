@@ -21,17 +21,19 @@ export interface NotificationState {
   codeModal: CodeModal,
   shouldReturnHome: boolean,
   shouldTryIt: boolean,
-  shouldTrySession?: AuthData
+  shouldTrySession?: AuthData,
+  isFromHome: boolean
 }
 
 const initialState: NotificationState = {
-    isLoading: true,
+    isLoading: false,
     codeModal: {
         isOpen: false,
         isSuccess: false
     },
     shouldReturnHome: false,
-    shouldTryIt: false
+    shouldTryIt: false,
+    isFromHome: false
 }
 
 export const notiSlice = createSlice({
@@ -88,6 +90,7 @@ export const notiSlice = createSlice({
     clearShouldTryIt: (state) => {
         state.shouldTryIt = false;
         state.shouldTrySession = undefined;
+        state.isFromHome = true;
     }
   },
 });

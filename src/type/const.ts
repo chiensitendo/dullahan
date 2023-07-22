@@ -4,6 +4,16 @@ export const INCOME_MAX_ITEMS = 5;
 
 export const EXPENSE_MAX_ITEMS = 15;
 
+export const MULTIPLES_FIXED_INCOME_FIELDS: Choice[] = [
+    {id: 1, name: "Full-Time job earning", checked: false},
+    {id: 2, name: "Part-time job earning", checked: false},
+];
+
+export const MULTIPLES_PASSIVE_INCOME_FIELDS: Choice[] = [
+    {id: 1, name: "Passive Source 1", checked: false},
+    {id: 2, name: "Passive Source 2", checked: false},
+];
+
 export const MULTIPLES_ESSENTIAL_EXPENSES_FIELDS: Choice[] = [
     {id: 1, name: "Housing (Rent)", checked: false},
     {id: 2, name: "Transportation (Fuel)", checked: false},
@@ -13,13 +23,21 @@ export const MULTIPLES_ESSENTIAL_EXPENSES_FIELDS: Choice[] = [
     {id: 6, name: "Communication (Phone bills, internet services)", checked: false},
     {id: 7, name: "Essential Personal Care (Hair Cut, Hygiene product)", checked: false},
     {id: 8, name: "Education", checked: false},
-    {id: 9, name: "Checkbox label", checked: false},
-    {id: 10, name: "Checkbox label", checked: false},
-    {id: 11, name: "Checkbox label", checked: false},
-    {id: 12, name: "Checkbox label", checked: false},
-    {id: 13, name: "Checkbox label", checked: false},
-    {id: 14, name: "Checkbox label", checked: false},
-    {id: 15, name: "Checkbox label", checked: false},
+    {id: 9, name: "Child Care (Support raising children)", checked: false},
+    {id: 10, name: "Family Care (Support Family - Elderly)", checked: false},
+];
+
+export const MULTIPLES_NON_ESSENTIAL_EXPENSES_FIELDS: Choice[] = [
+    {id: 11, name: "Entertainment (Movies, Games, Sports Events etc)", checked: false},
+    {id: 12, name: "Dining Restaurant (Eating Out)", checked: false},
+    {id: 13, name: "Non-work Traveling (Vacation, flight, hotel)", checked: false},
+    {id: 14, name: "Subscription Services (Netflix, Disney Plus, Spotify, Youtube)", checked: false},
+    {id: 15, name: "Coffee or Snack", checked: false},
+    {id: 16, name: "Beauty Services (Salon, Massage, Spa)", checked: false},
+    {id: 17, name: "Alcohol and Bars (Alcohol drinks, Bar dining)", checked: false},
+    {id: 18, name: "Non-Essential Gadgets (technologies, decorations)", checked: false},
+    {id: 19, name: "Luxury Shopping", checked: false},
+    {id: 20, name: "Premium Services (Butler, personal trainer)", checked: false},
 ];
 
 export const getValidationMessage = (type: VALIDATION_TYPE | undefined, name: string | undefined) => {
@@ -27,6 +45,9 @@ export const getValidationMessage = (type: VALIDATION_TYPE | undefined, name: st
     switch (type) {
         case VALIDATION_TYPE.INVALID:
             message = "is invalid";
+            break;
+        case VALIDATION_TYPE.LARGER_ZERO:
+            message = "must be larger than 0";
             break;
         default:
             message = "is required";

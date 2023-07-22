@@ -19,6 +19,7 @@ const withLoading = (WrapperComponent: NextPage<any>) => {
   // eslint-disable-next-line react/display-name
   return (props: any) => {
     const { isLoading, notification, shouldReturnHome } = useSelector((state: RootState) => state.notification);
+
     const dispatch = useDispatch();
     const router = useRouter();
     useEffect(() => {
@@ -27,7 +28,7 @@ const withLoading = (WrapperComponent: NextPage<any>) => {
           dispatch(setNotification(undefined));
         }, 3001);
       }
-    },[notification]);
+    },[notification, dispatch]);
 
     useEffect(() => {
       if (shouldReturnHome) {
@@ -36,13 +37,12 @@ const withLoading = (WrapperComponent: NextPage<any>) => {
       return () => {
         dispatch(setShouldReturnHome(false));
       };
-    },[shouldReturnHome]);
+    },[shouldReturnHome, dispatch, router]);
     return (
       <React.Fragment>
         {isLoading && <LoadingContainer/>}
         {notification && <ToastNotification
-        iconDescription="describes the close button"
-        subtitle={<span>{notification.message}</span>}
+        subtitle={notification.message}
         timeout={3000}
         onClose={e => {
           dispatch(setNotification(undefined));

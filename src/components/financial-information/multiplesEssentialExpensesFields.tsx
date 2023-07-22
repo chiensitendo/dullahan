@@ -1,14 +1,14 @@
 import React from "react";
 import { Checkbox } from "carbon-components-react";
-import { INCOME_MAX_ITEMS, MULTIPLES_ESSENTIAL_EXPENSES_FIELDS } from "@/type/const";
 
 import dynamic from 'next/dynamic'
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { closeModal, submitModal, updateModal } from "@/redux/formSlice";
+import { Choice } from "@/type";
 const ModalWrapper = dynamic(import('carbon-components-react').then(mod => mod.Modal), { ssr: false }) // disable ssr
 
-const MultiplesEssentialExpensesFields = () => {
+const MultiplesEssentialExpensesFields = ({selections}: {selections: Choice[]}) => {
 
     const { modal } = useSelector((state: RootState) => state.form);
     const dispatch = useDispatch();
@@ -30,7 +30,7 @@ const MultiplesEssentialExpensesFields = () => {
             <div>
                 {modal !== null && <fieldset className="cds--fieldset">
                     <legend className="cds--label label-02">Suggestion</legend>
-                    {MULTIPLES_ESSENTIAL_EXPENSES_FIELDS.map((field, index) => {
+                    {selections.map((field, index) => {
                         const foundedIndex = modal.items.findIndex(i => i.id === field.id);
 
                         return <Checkbox 

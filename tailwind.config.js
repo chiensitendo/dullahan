@@ -8,7 +8,8 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        'med': '1056px'
+        'med': '1056px',
+        'lar': '1584px'
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
@@ -19,7 +20,11 @@ module.exports = {
         pinky: '#FBA3FF',
         disabled: '#C6C6C6',
         secondary: '#DA1E28',
-        primary: '#0F62FE'
+        primary: '#0F62FE',
+        achieved:'#42BE65',
+        warn:'#F1C21B',
+        low:'#FA4D56',
+        text: '#161616'
       },
       colors: {
         footer: '#94F0F0',
@@ -29,7 +34,10 @@ module.exports = {
         placeholder: '#A8A8A8',
         good: '#E4FFDD',
         warning: '#FFF3DD',
-        bad: '#FFE8E8'
+        bad: '#FFE8E8',
+        achieved:'#47D28F',
+        warn:'#F1C21B',
+        low:'#FA4D56',
       },
       textColor: {
         link: '#78A9FF',

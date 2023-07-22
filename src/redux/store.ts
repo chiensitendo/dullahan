@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
 import formSlice from './formSlice'
-import logger from 'redux-logger'
 import tabSlice from './tabSlice'
 import createSagaMiddleware from "@redux-saga/core";
 import formSaga from './apiSaga';
 import notiSlice from './notiSlice';
+import customerSlice from './customerSlice';
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -12,7 +12,8 @@ export const store = configureStore({
   reducer: {
     form: formSlice,
     tab: tabSlice,
-    notification: notiSlice
+    notification: notiSlice,
+    customer: customerSlice
   },
  middleware: [ sagaMiddleware]
 });

@@ -9,18 +9,14 @@ import { getFormData } from "@/redux/formSlice";
 const withAuth = (WrapperComponent: NextPage<any>) => {
     // eslint-disable-next-line react/display-name
     return (props: any) => {
-        const {authData, setAuth} = useAuth();
+        const {authData, setAuth, setIsNew} = useAuth();
         const dispatch = useDispatch();
         useEffect(() => {
-            // startNewSeason().then(res => {
-            //     setAuth(res.data);
-            // });
-            if (authData) {
+            if (authData && !authData.is_new) {
                 dispatch(getFormData({auth: authData}));
             }
-            
-        },[authData]);
-        return <WrapperComponent authData = {authData} loading = {props.loading} />;
+        },[authData, dispatch]);
+        return <WrapperComponent authData = {authData} setIsNew = {setIsNew} loading = {props.loading} />;
     }
 }
 

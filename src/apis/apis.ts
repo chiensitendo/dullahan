@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import publicAxios from "./publicAxios";
 import { AuthData } from "@/components/use-auth";
-import { CredentialData, CustomerDebtCreationData, CustomerExpenseCreationData, CustomerExpenseCreationDataRequest, CustomerIncomeCreationData, CustomerIncomeCreationDataRequest, CustomerMeUpdateData, Debt, UserSeason } from "@/type";
+import { CredentialData, CustomerDebtCreationData, CustomerExpenseCreationData, CustomerExpenseCreationDataRequest, CustomerIncomeCreationData, CustomerIncomeCreationDataRequest, CustomerMeUpdateData, Debt, LineChartDataResponse, TimelineChartDataResponse, UserSeason } from "@/type";
 
 const SERVER_URL = "https://56b2m5gkm5.execute-api.ap-southeast-1.amazonaws.com/dev/v1";
 
@@ -89,6 +89,24 @@ Promise<AxiosResponse<Debt, any>> => {
 export const getCustomerMe = (auth: AuthData): 
 Promise<AxiosResponse<UserSeason, any>> => {
     return publicAxios.get<any>(SERVER_URL + "/customer/me", {
+        headers: {
+            "Authorization": generateAuthToken(auth)
+        }
+    });
+}
+
+export const getLineChartData = (auth: AuthData): 
+Promise<AxiosResponse<LineChartDataResponse, any>> => {
+    return publicAxios.get<any>(SERVER_URL + "/customer/me/generate-line-chart", {
+        headers: {
+            "Authorization": generateAuthToken(auth)
+        }
+    });
+}
+
+export const getTimelineLineChartData = (auth: AuthData): 
+Promise<AxiosResponse<TimelineChartDataResponse, any>> => {
+    return publicAxios.get<any>(SERVER_URL + "/customer/me/generate-timeline-chart", {
         headers: {
             "Authorization": generateAuthToken(auth)
         }

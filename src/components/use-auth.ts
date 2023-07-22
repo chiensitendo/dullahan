@@ -5,19 +5,28 @@ export interface AuthData {
     expires_in?: number;
     token_type?: string;
     refresh_token?: string;
+    is_new?: boolean
 }
 
 export enum AUTH_ITEM_NAME {
     DULLAHAN_ACCESS_TOKEN = "DULLAHAN_ACCESS_TOKEN",
     DULLAHAN_EXPIRES_IN = "DULLAHAN_EXPIRES_IN",
     DULLAHAN_TOKEN_TYPE = "DULLAHAN_TOKEN_TYPE",
-    DULLAHAN_REFRESH_TOKEN = "DULLAHAN_REFRESH_TOKEN"
+    DULLAHAN_REFRESH_TOKEN = "DULLAHAN_REFRESH_TOKEN",
+    DULLAHAN_IS_NEW = "DULLAHAN_IS_NEW"
+}
+
+export enum AUTH_STATUS {
+    INIT,
+    TRUE,
+    FALSE
 }
 
 
 
 function useAuth() {
     const [authItem, setAuthItem] = useState<AuthData>();
+    const [authStatus, setAuthStatus] = useState<AUTH_STATUS>(AUTH_STATUS.INIT);
 
     const getItem = (itemName: AUTH_ITEM_NAME) => {
         const value = localStorage.getItem(itemName);
@@ -52,6 +61,15 @@ function useAuth() {
         return getItem(AUTH_ITEM_NAME.DULLAHAN_REFRESH_TOKEN);
     }
 
+    const getIsNew = (): boolean => {
+        const value = getItem(AUTH_ITEM_NAME.DULLAHAN_IS_NEW);
+        return value === 'true';
+    }
+
+    const setIsNew = (value: boolean) => {
+        setItem(AUTH_ITEM_NAME.DULLAHAN_IS_NEW, String(value));
+    }
+
     const setAuth = (auth: AuthData) => {
         if (!auth.access_token || !auth.expires_in || !auth.refresh_token || !auth.token_type) {
             throw new Error("Cannot set local variable!");
@@ -60,6 +78,9 @@ function useAuth() {
         setItem(AUTH_ITEM_NAME.DULLAHAN_EXPIRES_IN, auth.expires_in.toString());
         setItem(AUTH_ITEM_NAME.DULLAHAN_TOKEN_TYPE, auth.token_type);
         setItem(AUTH_ITEM_NAME.DULLAHAN_REFRESH_TOKEN, auth.refresh_token);
+        if (auth.is_new !== undefined) {
+            setIsNew(auth.is_new);
+        }
         setAuthItem(auth);
     }
 
@@ -89,24 +110,29 @@ function useAuth() {
         clearItem(AUTH_ITEM_NAME.DULLAHAN_EXPIRES_IN);
         clearItem(AUTH_ITEM_NAME.DULLAHAN_TOKEN_TYPE);
         clearItem(AUTH_ITEM_NAME.DULLAHAN_REFRESH_TOKEN);
+        clearItem(AUTH_ITEM_NAME.DULLAHAN_IS_NEW);
         setAuthItem(undefined);
     }
 
     useEffect(() => {
+        setAuthStatus(AUTH_STATUS.FALSE);
         if (!authItem) {
             try {
                 const accessToken = getAccessToken();
                 const refreshToken = getRefreshToken();
                 const tokenType = getTokenType();
                 const expiresIn = getExpiresIn();
+                const isNew = getIsNew();
                 setAuthItem({
                     access_token: accessToken,
                     refresh_token: refreshToken,
                     token_type: tokenType,
-                    expires_in: expiresIn
+                    expires_in: expiresIn,
+                    is_new: isNew
                 });
+                setAuthStatus(AUTH_STATUS.TRUE);
             } catch (e) {
-                
+                setAuthStatus(AUTH_STATUS.FALSE);
             }
         }
     },[]);
@@ -119,7 +145,10 @@ function useAuth() {
         getTokenType,
         setAuth,
         updateAuth,
-        clearAuth
+        clearAuth,
+        getIsNew,
+        setIsNew,
+        authStatus
     };
 }
 

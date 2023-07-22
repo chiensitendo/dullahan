@@ -24,10 +24,10 @@ const EnterCodeModal = () => {
                 access_token: userToken.access_token,
                 expires_in: userToken.expires_in,
                 refresh_token: userToken.refresh_token,
-                token_type: userToken.token_type
+                token_type: userToken.token_type,
+                is_new: false
             });
             dispatch(resetEnterCode());
-            // router.push(FORM_LINK);
             window.location.href = FORM_LINK;
         }
     },[isSuccess, userToken]);

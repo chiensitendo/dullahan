@@ -147,6 +147,16 @@ p {
     font-weight: 300;
     line-height: 50px;
 }
+.heading-06-05 {
+    font-size: 42px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 50px;
+    @media screen and (max-width: $large_breakpoint) {
+        font-size: 32px;
+        line-height: 40px;
+    }
+}
 .center-in-the-right {
     right: 16px;
     top: 50%;

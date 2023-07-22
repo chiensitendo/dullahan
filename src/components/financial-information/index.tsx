@@ -35,10 +35,14 @@ import {
   updateField,
   updateIncomeDelete,
 } from "@/redux/formSlice";
-import { FORM_FIELD, VALIDATION_TYPE } from "@/type";
+import { Choice, ExpenseType, FORM_FIELD, IncomeType, VALIDATION_TYPE } from "@/type";
 import {
   EXPENSE_MAX_ITEMS,
   INCOME_MAX_ITEMS,
+  MULTIPLES_ESSENTIAL_EXPENSES_FIELDS,
+  MULTIPLES_FIXED_INCOME_FIELDS,
+  MULTIPLES_NON_ESSENTIAL_EXPENSES_FIELDS,
+  MULTIPLES_PASSIVE_INCOME_FIELDS,
   getValidationMessage,
 } from "@/type/const";
 import {
@@ -136,6 +140,8 @@ const FinancialInformationFieldGroup = (props: FieldGroupProps) => {
     isAll,
     isIndeterminate,
     isAdvanceAction,
+    selections,
+    type
   } = props;
 
   const components = useMemo(() => {
@@ -287,6 +293,8 @@ const FinancialInformationFieldGroup = (props: FieldGroupProps) => {
                   addMultipleItems({
                     name: name,
                     max: max,
+                    selections: selections,
+                    type: type
                   })
                 )
               }
@@ -317,6 +325,8 @@ interface FieldGroupProps {
     {
       name: string;
       max: number;
+      selections: Choice[];
+      type: string;
     },
     any
   >;
@@ -342,6 +352,8 @@ interface FieldGroupProps {
   isAll: boolean;
   isIndeterminate: boolean;
   isAdvanceAction: boolean;
+  selections: Choice[];
+  type: string;
 }
 
 interface FieldGroupItem {
@@ -567,6 +579,7 @@ const FinancialInformation = memo(
           name="fixedIncome"
           items={fixedIncomeItems}
           dispatch={dispatch}
+          type={IncomeType.FIXED_INCOME}
           add={addFixedIncome}
           updateField={updateField}
           addMultipleItems={openModal}
@@ -577,6 +590,7 @@ const FinancialInformation = memo(
           isAll={incomeDelete.isAllFixedIncome}
           isIndeterminate={incomeDelete.isIndeterminateFixedIncome}
           isAdvanceAction={isAdvanceAction}
+          selections={MULTIPLES_FIXED_INCOME_FIELDS}
         />
         <FinancialInformationFieldGroup
           title="Passive income"
@@ -584,6 +598,7 @@ const FinancialInformation = memo(
           items={passiveIncomeItems}
           dispatch={dispatch}
           add={addPassiveIncome}
+          type={IncomeType.PASSIVE_INCOME}
           updateField={updateField}
           addMultipleItems={openModal}
           max={INCOME_MAX_ITEMS}
@@ -594,6 +609,7 @@ const FinancialInformation = memo(
           isAll={incomeDelete.isAllPassiveIncome}
           isIndeterminate={incomeDelete.isIndeterminatePassiveIncome}
           isAdvanceAction={isAdvanceAction}
+          selections={MULTIPLES_PASSIVE_INCOME_FIELDS}
         />
         <div className="flex items-center justify-between pb-2 pt-6">
           <p
@@ -665,6 +681,7 @@ const FinancialInformation = memo(
           add={addExpense}
           updateField={updateField}
           addMultipleItems={openModal}
+          type={ExpenseType.EXPENSE}
           max={EXPENSE_MAX_ITEMS}
           isDeleteMode={expenseDelete.isDelete}
           updateDelete={updateExpenseDelete}
@@ -672,6 +689,7 @@ const FinancialInformation = memo(
           isAll={expenseDelete.isAllExpenses}
           isIndeterminate={expenseDelete.isIndeterminateExpenses}
           isAdvanceAction={isAdvanceAction}
+          selections={MULTIPLES_ESSENTIAL_EXPENSES_FIELDS}
         />
         <FinancialInformationFieldGroup
           title="Non-essential expenses"
@@ -679,6 +697,7 @@ const FinancialInformation = memo(
           items={nonExpenseItems}
           dispatch={dispatch}
           add={addNonExpense}
+          type={ExpenseType.NON_EXPENSE}
           updateField={updateField}
           addMultipleItems={openModal}
           max={EXPENSE_MAX_ITEMS}
@@ -689,6 +708,7 @@ const FinancialInformation = memo(
           isAll={expenseDelete.isAllNonExpenses}
           isIndeterminate={expenseDelete.isIndeterminateNonExpenses}
           isAdvanceAction={isAdvanceAction}
+          selections={MULTIPLES_NON_ESSENTIAL_EXPENSES_FIELDS}
         />
         <div className="border-subtitle-00 pb-6">
           <div className="pt-6 pb-2 flex justify-between items-center">
