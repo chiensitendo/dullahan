@@ -31,34 +31,33 @@ const BudgetRecommendation = ({ item }: { item: UserSeason }) => {
       );
     }
     if (item.debts && item.debts.length > 0) {
-      const debtName = item.debts.map((d) => d.name).join(",");
-      const interestRate = item.debts
-        .map((d) => d.annual_interest + "%")
-        .join(",");
-      list.push(
-        <AccordionItem
-          key={list.length}
-          title={
-            <div className="flex items-center py-4">
-              <p>
-                You have {debtName} with {interestRate} interest
-              </p>
-              <Tag
-                style={{ marginLeft: "8px" }}
-                type="red"
-                title="Clear Filter"
-              >
-                Warning
-              </Tag>
-            </div>
-          }
-        >
-          <p>
-            You have {debtName} debt going, consider paying it off soon to free
-            up your income
-          </p>
-        </AccordionItem>
-      );
+      item.debts.forEach(debt => {
+        list.push(
+          <AccordionItem
+            key={list.length}
+            title={
+              <div className="flex items-center py-4">
+                <p>
+                  You have {debt.name} with {debt.annual_interest + '%'} interest
+                </p>
+                <Tag
+                  style={{ marginLeft: "8px" }}
+                  type="red"
+                  title="Clear Filter"
+                >
+                  Warning
+                </Tag>
+              </div>
+            }
+          >
+            <p>
+              You have {debt.name} debt going, consider paying it off soon to free
+              up your income
+            </p>
+          </AccordionItem>
+        );
+      });
+      
     }
     if (item.monthly_net_flow > item.total_essential_expense) {
       list.push(

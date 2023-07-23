@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import useAuth from './use-auth';
 import { useEffect } from 'react';
 import { FORM_LINK } from '@/type/const';
+import { clearForm } from '@/redux/formSlice';
 
 
 const ModalWrapper = dynamic(import('carbon-components-react').then(mod => mod.Modal), { ssr: false }) // disable ssr
@@ -28,6 +29,7 @@ const EnterCodeModal = () => {
                 is_new: false
             });
             dispatch(resetEnterCode());
+            dispatch(clearForm());
             window.location.href = FORM_LINK;
         }
     },[isSuccess, userToken]);

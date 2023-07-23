@@ -35,61 +35,6 @@ import SideMenu from "@/components/result/SideMenu";
 import { useRouter } from "next/router";
 
 const BarChar = ({ item }: { item: UserSeason }) => {
-  const state = {
-    data: [
-      {
-        group: "Fixed income",
-        key: "Thu",
-        value: 65000,
-      },
-      {
-        group: "Fixed income",
-        key: "Chi",
-        value: 0,
-      },
-      {
-        group: "Passive income",
-        key: "Thu",
-        value: 32432,
-      },
-      {
-        group: "Passive income",
-        key: "Chi",
-        value: 0,
-      },
-      {
-        group: "Essential expenses",
-        key: "Thu",
-        value: 0,
-      },
-      {
-        group: "Essential expenses",
-        key: "Chi",
-        value: 29123,
-      },
-      {
-        group: "Non-ssential expenses",
-        key: "Thu",
-        value: 0,
-      },
-      {
-        group: "Non-ssential expenses",
-        key: "Chi",
-        value: 15312,
-      },
-      {
-        group: "Debt",
-        key: "Thu",
-        value: 0,
-      },
-
-      {
-        group: "Debt",
-        key: "Chi",
-        value: 24232,
-      },
-    ],
-  };
   const items = useMemo(() => {
     const list: any[] = [];
     if (item.incomes) {
@@ -99,7 +44,7 @@ const BarChar = ({ item }: { item: UserSeason }) => {
             income.type === IncomeType.FIXED_INCOME
               ? "Fixed income"
               : "Passive income",
-          key: "Thu",
+          key: "Income",
           value: income.amount,
         });
       });
@@ -111,7 +56,7 @@ const BarChar = ({ item }: { item: UserSeason }) => {
             expense.type === ExpenseType.EXPENSE
               ? "Essential expenses"
               : "Non-ssential expenses",
-          key: "Chi",
+          key: "Expense",
           value: expense.amount,
         });
       });
@@ -120,7 +65,7 @@ const BarChar = ({ item }: { item: UserSeason }) => {
       item.debts.forEach((debt) => {
         list.push({
           group: "Debt",
-          key: "Chi",
+          key: "Expense",
           value: debt.remaining_amount,
         });
       });
