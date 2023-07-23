@@ -868,7 +868,7 @@ const FinancialInformation = memo(
                       return (
                         <InputField
                           key={`debt-${index}-${val}-${jdex}`}
-                          placeholder="0.00"
+                          placeholder={val !== 'name' ? "0.00": 'Input name'}
                           label={debtLabel[val]}
                           name={val}
                           isFirst={validation.isFirst}
