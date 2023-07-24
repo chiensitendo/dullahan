@@ -66,7 +66,7 @@ const BarChar = ({ item }: { item: UserSeason }) => {
         list.push({
           group: "Debt",
           key: "Expense",
-          value: debt.remaining_amount,
+          value: debt.monthly_payment,
         });
       });
     }

@@ -254,6 +254,9 @@ p {
             max-width: unset;
         }
     }
+    & > .btn-dashboard-step:last-child {
+        padding-right: 0 !important
+    }
 }
 
 .heading-03-body-02 {

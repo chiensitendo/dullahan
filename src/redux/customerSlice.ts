@@ -7,10 +7,12 @@ export interface CustomerState {
   item?: UserSeason;
   lineChart?: LineChartDataResponse;
   timelineChart?: TimelineChartDataResponse;
+  isLoadLineChartSuccess: boolean
 }
 
 const initialState: CustomerState = {
   isSuccess: undefined,
+  isLoadLineChartSuccess: false
 };
 
 export const customerSlice = createSlice({
@@ -26,12 +28,17 @@ export const customerSlice = createSlice({
     getCustomerMeDataFailure: (state) => {
       state.isSuccess = false;
     },
-    getLineChartData: (state, action: PayloadAction<{ auth: AuthData }>) => {},
+    getLineChartData: (state, action: PayloadAction<{ auth: AuthData }>) => {
+      state.isLoadLineChartSuccess = false;
+    },
     getLineChartDataSuccess: (state, action) => {
       const { data } = action.payload as { data: LineChartDataResponse };
       state.lineChart = data;
+      state.isLoadLineChartSuccess = true;
     },
-    getLineChartDataFailure: (state) => {},
+    getLineChartDataFailure: (state) => {
+      state.isLoadLineChartSuccess = false;
+    },
     getTimelineChartData: (state, action: PayloadAction<{ auth: AuthData }>) => {},
     getTimelineChartDataSuccess: (state, action) => {
       const { data } = action.payload as { data: TimelineChartDataResponse };

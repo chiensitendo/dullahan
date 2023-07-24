@@ -1,6 +1,11 @@
 import { Timeline } from "@/type";
 import React, { useMemo } from "react";
 
+interface TimeLineItem {
+  time: number,
+  timeline: TimeLineItem[]
+}
+
 const DebtTimeline = ({ items }: { items: Timeline[] }) => {
   const TimelineYear = ({ isTop, year }: { isTop: boolean; year: string }) => {
     return (
@@ -94,11 +99,38 @@ const DebtTimeline = ({ items }: { items: Timeline[] }) => {
     const l: any[] = [];
     let isLeft = true;
     let currentYear = "";
-    let count = items.filter(
+    const filteredItems= items.filter(
       (item) => !isNaN(new Date(item.date).getDate())
-    ).length;
-    items
-      .filter((item) => !isNaN(new Date(item.date).getDate()))
+    );
+    const processItems = {} as any;
+    filteredItems.forEach(item => {
+      const [month, year] = item.date.split(" ");
+      if (year !== "") {
+        if (!processItems[year]) {
+          processItems[year] = [item];
+        } else {
+          processItems[year].push(item);
+        }
+      }
+    });
+    const years = Object.keys(processItems);
+    years.sort();
+    
+    const finalItems: any[] = [];
+    years.forEach(year => {
+      const l = processItems[year] as Timeline[];
+      l.sort((obj1, obj2) => {
+        const [month1, year1] = obj1.date.split(" ");
+        const [month2, year2] = obj2.date.split(" ");
+        if (month1 === month2) return 0;
+        else if (month1 > month2) return -1;
+        else return 1;
+      });
+      l.forEach(item => {
+        finalItems.push(item);
+      })
+    });
+    finalItems
       .forEach((item, index) => {
         const [month, year] = item.date.split(" ");
         if (currentYear !== year) {
@@ -116,7 +148,7 @@ const DebtTimeline = ({ items }: { items: Timeline[] }) => {
               year={year}
               desc={item.description}
               event={item.event}
-              isFinal={index === count - 1}
+              isFinal={index === finalItems.length - 1}
             />
           );
         } else {
@@ -128,7 +160,7 @@ const DebtTimeline = ({ items }: { items: Timeline[] }) => {
               year={year}
               desc={item.description}
               event={item.event}
-              isFinal={index === count - 1}
+              isFinal={index === finalItems.length - 1}
             />
           );
         }
