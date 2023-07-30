@@ -14,7 +14,7 @@ const DLineBar = ({data}: {data: LineCharData[]}) => {
     return <LineChart
     data={data}
     options={{
-        title: 'Your balance amount over time',
+        title: '',
         axes: {
             bottom: {
                 title: 'Months',
