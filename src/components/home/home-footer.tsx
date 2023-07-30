@@ -1,5 +1,4 @@
 import React from "react";
-
 const HomeFooter = () => {
   return (
     <div className="bg-footer">
@@ -25,7 +24,7 @@ const HomeFooter = () => {
                     cds--col-lg-4 cds--col-md-2 cds--col-sm-0"
               style={{ placeSelf: "start" }}
             >
-              <img className="" src="/images/illus_footer.svg" />
+              <img className="" src="/images/footer.png" />
             </div>
             {/* Middle Part */}
 

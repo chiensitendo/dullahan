@@ -7,8 +7,11 @@
 // If you're including all the styles for Carbon
 @use '@carbon/styles';
 
+
 // Or if you're wanting to use just the grid
 @use '@carbon/styles/scss/grid';
+
+@use '@carbon/styles/scss/components/tooltip';
 
 // Emit the flex-grid styles
 @include grid.flex-grid();
@@ -242,6 +245,22 @@ p {
         &:last-child {
             margin-bottom: 1rem;
         }
+    }
+}
+.btn-dashboard-step-btn {
+    outline: none;
+    
+    &:focus {
+        border-color: unset;
+        box-shadow: none;
+        border-width: unset;
+        border-style: unset;
+    }
+    &:hover {
+        background-color: #393939;
+    }
+    &:active {
+        background-color: #393939;
     }
 }
 

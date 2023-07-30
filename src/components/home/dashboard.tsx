@@ -15,7 +15,7 @@ import { clearForm } from "@/redux/formSlice";
 const DashboardStep = (props: { text: string[] }) => {
     const { text } = props;
     return <div className="btn-dashboard-step">
-        <SecondaryButton className="body-02 h-full btn-secondary" style={{
+        <SecondaryButton className="btn-dashboard-step-btn body-02 h-full btn-secondary" style={{
             padding: "1rem", width: "100%", height: "100%", cursor: 'default'
         }}>
             <span className="self-start mr-2 mt-1 w-5 h-5"><PlayFilledAlt className="fill-pinky" /></span>

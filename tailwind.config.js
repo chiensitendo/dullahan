@@ -50,6 +50,7 @@ module.exports = {
         good: '#198038',
         warning: '#FF8A00',
         bad: '#FF5F37',
+        disabled: '#C6C6C6',
       },
       borderColor: {
         strong: '#8D8D8D',

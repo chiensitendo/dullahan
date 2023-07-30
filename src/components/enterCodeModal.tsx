@@ -1,4 +1,3 @@
-
 import { resetEnterCode, submitCode, triggerEnterCode, updateCode } from '@/redux/notiSlice';
 import { RootState } from '@/redux/store';
 import { TextInput } from 'carbon-components-react';

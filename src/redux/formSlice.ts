@@ -1,6 +1,6 @@
 import { AuthData } from "@/components/use-auth";
 import { Choice, ExpenseType, FORM_FIELD, IncomeType, UserSeason, VALIDATION_TYPE } from "@/type"
-import { EXPENSE_MAX_ITEMS, INCOME_MAX_ITEMS } from "@/type/const"
+import { EXPENSE_MAX_ITEMS, INCOME_MAX_ITEMS, MULTIPLES_ESSENTIAL_EXPENSES_FIELDS, MULTIPLES_FIXED_INCOME_FIELDS, MULTIPLES_NON_ESSENTIAL_EXPENSES_FIELDS, MULTIPLES_PASSIVE_INCOME_FIELDS, isFixedActiveIncome, isFixedExpenseIncome, isFixedNonExpenseIncome, isFixedPassiveIncome } from "@/type/const"
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 
 
@@ -27,6 +27,7 @@ export interface DebtValidationItem {
 export interface IncomeData {
   validation: IncomeValidationItem;
   isDelete: boolean;
+  isFixed: boolean;
   amount: string;
   name: string;
   type: IncomeType;
@@ -36,6 +37,7 @@ export interface IncomeData {
 export interface ExpenseData {
   validation: IncomeValidationItem;
   isDelete: boolean;
+  isFixed: boolean;
   amount: string;
   name: string;
   type: ExpenseType;
@@ -69,7 +71,8 @@ export interface ModalItem {
   items: Choice[],
   name: string,
   remain: number,
-  type: string
+  type: string,
+  disabledList: Choice[]
 }
 
 export enum FIELD_NAME {
@@ -77,31 +80,25 @@ export enum FIELD_NAME {
   EXPENSES = "expenses"
 }
 
-export interface IncomeDeleteState {
-  isDelete: boolean;
+
+
+export interface FocusState {
+  fixedIncome?: number;
+  passiveIncome?: number;
+  expenses?: number;
+  nonExpenses?: number;
+  debts?: number;
+}
+
+export interface DeleteItemState {
   fixedIncome: number[];
   passiveIncome: number[];
-  isAllFixedIncome: boolean;
-  isAllPassiveIncome: boolean;
-  isIndeterminateFixedIncome: boolean;
-  isIndeterminatePassiveIncome: boolean;
-}
-
-export interface ExpenseDeleteState {
-  isDelete: boolean;
   expenses: number[];
   nonExpenses: number[];
-  isAllExpenses: boolean;
-  isAllNonExpenses: boolean;
-  isIndeterminateExpenses: boolean;
-  isIndeterminateNonExpenses: boolean;
+  debts: number[];
 }
 
-export interface DebtDeleteState {
-  isDelete: boolean;
-  items: number[];
-}
-
+export type FocusFields = "fixedIncome" | "passiveIncome" | "expenses" | "nonExpenses" | "debts";
 
 export interface FormState {
   fixedIncome: IncomeData[];
@@ -109,114 +106,76 @@ export interface FormState {
   expenses: ExpenseData[];
   nonExpenses: ExpenseData[];
   modal: ModalItem | null;
-  incomeDelete: IncomeDeleteState;
-  expenseDelete: ExpenseDeleteState;
-  currentBalance?: CurrentBalance;
+  currentBalance: CurrentBalance;
   debts: DebtData[];
-  debtDelete: DebtDeleteState;
   errorMessages?: string[];
-  isActionRequired: boolean;
   shouldSent: boolean;
   code?: string;
   isSubmit: boolean;
   isEdit: boolean;
   selections: Choice[];
+  focus: FocusState;
+  deleteId?: string;
+  isChanged: boolean;
+  deleteItems: DeleteItemState;
 }
 
 const initialState: FormState = {
-  fixedIncome: [
-    {
-      amount: "", name: "", type: IncomeType.FIXED_INCOME, validation: {
-        amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-        name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-      },
-      isDelete: false
-    }
-  ],
-  passiveIncome: [
-    {
-      amount: "", name: "", type: IncomeType.PASSIVE_INCOME, validation: {
-        amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-        name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-      },
-      isDelete: false
-    }
-  ],
-  expenses: [
-    {
-      amount: "", name: "", type: ExpenseType.EXPENSE, validation: {
-        amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-        name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-      },
-      isDelete: false
+  fixedIncome: MULTIPLES_FIXED_INCOME_FIELDS.slice(0,3).map(item => ({
+    amount: "", name: item.name, type: IncomeType.FIXED_INCOME, validation: {
+      amount: { isValid: true, isFirst: true },
+      name: { isValid: true, isFirst: true }
     },
-    {
-      amount: "", name: "", type: ExpenseType.EXPENSE, validation: {
-        amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-        name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-      },
-      isDelete: false
+    isDelete: false,
+    isFixed: true
+  })),
+  passiveIncome: MULTIPLES_PASSIVE_INCOME_FIELDS.slice(0,3).map(item => ({
+    amount: "", name: item.name, type: IncomeType.PASSIVE_INCOME, validation: {
+      amount: { isValid: true, isFirst: true },
+      name: { isValid: true, isFirst: true }
     },
-    {
-      amount: "", name: "", type: ExpenseType.EXPENSE, validation: {
-        amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-        name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-      },
-      isDelete: false
-    }
-  ],
-  nonExpenses: [
-    {
-      amount: "", name: "", type: ExpenseType.NON_EXPENSE, validation: {
-        amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-        name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-      },
-      isDelete: false
+    isDelete: false,
+    isFixed: true
+  })),
+  expenses: MULTIPLES_ESSENTIAL_EXPENSES_FIELDS.slice(0,3).map(item => ({
+    amount: "", name: item.name, type: ExpenseType.EXPENSE, validation: {
+      amount: { isValid: true, isFirst: true },
+      name: { isValid: true, isFirst: true }
     },
-    {
-      amount: "", name: "", type: ExpenseType.NON_EXPENSE, validation: {
-        amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-        name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-      },
-      isDelete: false
+    isDelete: false,
+    isFixed: true
+  })),
+  nonExpenses: MULTIPLES_NON_ESSENTIAL_EXPENSES_FIELDS.slice(0,3).map(item => ({
+    amount: "", name: item.name, type: ExpenseType.NON_EXPENSE, validation: {
+      amount: { isValid: true, isFirst: true },
+      name: { isValid: true, isFirst: true }
     },
-    {
-      amount: "", name: "", type: ExpenseType.NON_EXPENSE, validation: {
-        amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-        name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-      },
-      isDelete: false
-    }
-  ],
+    isDelete: false,
+    isFixed: true
+  })),
   modal: null,
-  incomeDelete: {
-    isDelete: false,
-    fixedIncome: [],
-    passiveIncome: [],
-    isAllFixedIncome: false,
-    isAllPassiveIncome: false,
-    isIndeterminateFixedIncome: false,
-    isIndeterminatePassiveIncome: false
-  },
-  expenseDelete: {
-    isDelete: false,
-    expenses: [],
-    nonExpenses: [],
-    isAllExpenses: false,
-    isAllNonExpenses: false,
-    isIndeterminateExpenses: false,
-    isIndeterminateNonExpenses: false
-  },
+
   debts: [],
-  debtDelete: {
-    isDelete: false,
-    items: []
-  },
-  isActionRequired: false,
   shouldSent: false,
   isSubmit: false,
   isEdit: false,
-  selections: []
+  selections: [],
+  currentBalance: {
+    value: "",
+    validation: {
+      isFirst: true,
+      isValid: false
+    }
+  },
+  focus: {},
+  isChanged: false,
+  deleteItems: {
+    fixedIncome: [],
+  passiveIncome: [],
+  expenses: [],
+  nonExpenses: [],
+  debts: [],
+  }
 }
 
 export const formSlice = createSlice({
@@ -224,51 +183,100 @@ export const formSlice = createSlice({
   initialState,
   reducers: {
     addFixedIncome: (state) => {
+      state.isChanged = true;
       if (state.fixedIncome.length === INCOME_MAX_ITEMS) return;
       state.fixedIncome.push({
-        amount: "", name: "", type: IncomeType.FIXED_INCOME, validation: {
-          amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-          name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
+        amount: "", name: "Active income " + (state.fixedIncome.length + 1), type: IncomeType.FIXED_INCOME, validation: {
+          amount: { isValid: true, isFirst: true },
+          name: { isValid: true, isFirst: true }
         },
-        isDelete: false
+        isDelete: false,
+        isFixed: false
       });
     },
     addPassiveIncome: (state) => {
+      state.isChanged = true;
       if (state.passiveIncome.length === INCOME_MAX_ITEMS) return;
       state.passiveIncome.push({
-        amount: "", name: "", type: IncomeType.PASSIVE_INCOME, validation: {
-          amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-          name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
+        amount: "", name: "Passive income " + (state.passiveIncome.length + 1), type: IncomeType.PASSIVE_INCOME, validation: {
+          amount: { isValid: true, isFirst: true },
+          name: { isValid: true, isFirst: true}
         },
-        isDelete: false
+        isDelete: false,
+        isFixed: false
       });
     },
     addExpense: (state) => {
+      state.isChanged = true;
       if (state.expenses.length === EXPENSE_MAX_ITEMS) return;
       state.expenses.push({
-        amount: "", name: "", type: ExpenseType.EXPENSE, validation: {
-          amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-          name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
+        amount: "", name: "Essential expenses " + (state.expenses.length + 1), type: ExpenseType.EXPENSE, validation: {
+          amount: { isValid: true, isFirst: true },
+          name: { isValid: true, isFirst: true }
         },
-        isDelete: false
+        isDelete: false,
+        isFixed: false
       });
     },
     addNonExpense: (state) => {
+      state.isChanged = true;
       if (state.nonExpenses.length === EXPENSE_MAX_ITEMS) return;
       state.nonExpenses.push({
-        amount: "", name: "", type: ExpenseType.NON_EXPENSE, validation: {
-          amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-          name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
+        amount: "", name: "Non-essential expenses " + (state.nonExpenses.length + 1), type: ExpenseType.NON_EXPENSE, validation: {
+          amount: { isValid: true, isFirst: true },
+          name: { isValid: true, isFirst: true }
         },
-        isDelete: false
+        isDelete: false,
+        isFixed: false
       });
     },
     openModal: (state, action: PayloadAction<{ name: string, max: number, selections: Choice[], type: string }>) => {
       const { name, max, selections, type } = action.payload;
       state.selections = selections;
+      const field: FocusFields = name as any;
+      const list: Choice[] = [];
+      switch (field) {
+        case "fixedIncome":
+          const fixedIncomes = state.fixedIncome.filter(item => item.isFixed).map(n => n.name);
+          MULTIPLES_FIXED_INCOME_FIELDS.forEach(c => {
+            if (fixedIncomes.includes(c.name)) {
+              list.push(c);
+            }
+          });
+          break;
+        case "passiveIncome":
+          const passiveIncomes = state.passiveIncome.filter(item => item.isFixed).map(n => n.name);
+          MULTIPLES_PASSIVE_INCOME_FIELDS.forEach(c => {
+            if (passiveIncomes.includes(c.name)) {
+              list.push(c);
+            }
+          });
+          break;
+        case "expenses":
+          const expenses = state.expenses.filter(item => item.isFixed).map(n => n.name);
+          MULTIPLES_ESSENTIAL_EXPENSES_FIELDS.forEach(c => {
+            if (expenses.includes(c.name)) {
+              list.push(c);
+            }
+          });
+          break;
+          case "nonExpenses":
+            const nonExpenses = state.nonExpenses.filter(item => item.isFixed).map(n => n.name);
+            MULTIPLES_NON_ESSENTIAL_EXPENSES_FIELDS.forEach(c => {
+              if (nonExpenses.includes(c.name)) {
+                list.push(c);
+              }
+            });
+            break;
+          default:
+            break;
+      }
+
+     ;
       state.modal = {
         items: [],
         name: name,
+        disabledList: list,
         remain: max - (state as any)[name].length,
          type: type
       }
@@ -288,7 +296,8 @@ export const formSlice = createSlice({
                 name: state.modal.name,
                 items: list,
                 remain: remain - 1,
-                type: state.modal.type
+                type: state.modal.type,
+                disabledList: state.modal.disabledList
               }
             }
           }
@@ -301,7 +310,8 @@ export const formSlice = createSlice({
                 name: state.modal.name,
                 items: list,
                 remain: remain + 1,
-                type: state.modal.type
+                type: state.modal.type,
+                disabledList: state.modal.disabledList
               }
             }
           }
@@ -318,16 +328,18 @@ export const formSlice = createSlice({
         state.modal.items.forEach(i => {
           l.push({
             amount: "", name: i.name, type: (state.modal?.type as any), validation: {
-              amount: { isValid: false, isFirst: false },
+              amount: { isValid: true, isFirst: false },
               name: { isValid: true, isFirst: false }
             },
-            isDelete: false
+            isDelete: false,
+            isFixed: true
           });
         });
       }
       state.modal = null;
     },
     updateField: (state, action: PayloadAction<FormStateItem>) => {
+      state.isChanged = true;
       const payload = action.payload;
       const item = (state as any)[payload.name][payload.index];
       switch (payload.attribute) {
@@ -339,12 +351,15 @@ export const formSlice = createSlice({
 
           if (!isValid) {
             if (payload.value === "") {
-              item['validation'][payload.attribute]['type'] = VALIDATION_TYPE.REQUIRED;
+              // item['validation'][payload.attribute]['type'] = VALIDATION_TYPE.REQUIRED;
+              item['validation'][payload.attribute]['isValid'] = true;
             } else if (isNaN(+value)) {
               item['validation'][payload.attribute]['type'] = VALIDATION_TYPE.INVALID;
             } else if (+value <= 0) {
               item['validation'][payload.attribute]['type'] = VALIDATION_TYPE.LARGER_ZERO;
             }
+          } else {
+            item['validation'][payload.attribute]['type'] = undefined;
           }
           break;
         default:
@@ -359,313 +374,8 @@ export const formSlice = createSlice({
       }
       item['validation'][payload.attribute]['isFirst'] = false;
     },
-    openIncomeDelete: (state) => {
-      state.incomeDelete = {
-        isDelete: true,
-        fixedIncome: [],
-        passiveIncome: [],
-        isAllFixedIncome: false,
-        isAllPassiveIncome: false,
-        isIndeterminateFixedIncome: false,
-        isIndeterminatePassiveIncome: false
-      }
-    },
-    openExpenseDelete: (state) => {
-      state.expenseDelete = {
-        isDelete: true,
-        expenses: [],
-        nonExpenses: [],
-        isAllExpenses: false,
-        isAllNonExpenses: false,
-        isIndeterminateExpenses: false,
-        isIndeterminateNonExpenses: false
-      };
-    },
-    closeIncomeDelete: (state) => {
-      const { fixedIncome, passiveIncome } = state.incomeDelete;
-      if (fixedIncome.length > 0) {
-        fixedIncome.forEach(id => {
-          state.fixedIncome[id].isDelete = false;
-        });
-      }
-      if (passiveIncome.length > 0) {
-        passiveIncome.forEach(id => {
-          state.passiveIncome[id].isDelete = false;
-        });
-      }
-      state.incomeDelete = {
-        isDelete: false,
-        fixedIncome: [],
-        passiveIncome: [],
-        isAllFixedIncome: false,
-        isAllPassiveIncome: false,
-        isIndeterminateFixedIncome: false,
-        isIndeterminatePassiveIncome: false
-      };
-    },
-    closeExpenseDelete: (state) => {
-      const { expenses, nonExpenses } = state.expenseDelete;
-      if (expenses.length > 0) {
-        expenses.forEach(id => {
-          state.expenses[id].isDelete = false;
-        });
-      }
-      if (nonExpenses.length > 0) {
-        nonExpenses.forEach(id => {
-          state.nonExpenses[id].isDelete = false;
-        });
-      }
-      state.expenseDelete = {
-        isDelete: false,
-        expenses: [],
-        nonExpenses: [],
-        isAllExpenses: false,
-        isAllNonExpenses: false,
-        isIndeterminateExpenses: false,
-        isIndeterminateNonExpenses: false
-      };
-    },
-    updateIncomeDelete: (state, action: PayloadAction<{ index: number, name: string, checked: boolean }>) => {
-      const { index, name, checked } = action.payload;
-      if (!state.incomeDelete.isDelete) {
-        return state;
-      }
-      const item: IncomeData[] = (state as any)[name];
-      let ids: number[] = Array.from((state.incomeDelete as any)[name]);
-      if ((state as any)[name]) {
-        if (checked) {
-          item[index].isDelete = true;
-          ids.push(index);
-        } else {
-          item[index].isDelete = false;
-          ids = ids.filter((v) => v !== index);
-        }
-        (state.incomeDelete as any)[name] = ids;
-        if (name === FIELD_NAME.FIXED_INCOME) {
-          let isAllFixedIncome = item.reduce((a, i) => a && i.isDelete, true);
-          if (isAllFixedIncome) {
-            state.incomeDelete.isIndeterminateFixedIncome = false;
-            state.incomeDelete.isAllFixedIncome = true;
-          } else if (ids.length === 0) {
-            state.incomeDelete.isIndeterminateFixedIncome = false;
-            state.incomeDelete.isAllFixedIncome = false;
-          } else {
-            state.incomeDelete.isIndeterminateFixedIncome = true;
-            state.incomeDelete.isAllFixedIncome = false;
-          }
-        } else {
-          let isAllPassiveIncome = item.reduce((a, i) => a && i.isDelete, true);
-          if (isAllPassiveIncome) {
-            state.incomeDelete.isIndeterminatePassiveIncome = false;
-            state.incomeDelete.isAllPassiveIncome = true;
-          } else if ((state.incomeDelete as any)[name].length === 0) {
-            state.incomeDelete.isIndeterminatePassiveIncome = false;
-            state.incomeDelete.isAllPassiveIncome = false;
-          } else {
-            state.incomeDelete.isIndeterminatePassiveIncome = true;
-            state.incomeDelete.isAllPassiveIncome = false;
-          }
-        }
-      }
-    },
-    updateExpenseDelete: (state, action: PayloadAction<{ index: number, name: string, checked: boolean }>) => {
-      const { index, name, checked } = action.payload;
-      if (!state.expenseDelete.isDelete) {
-        return state;
-      }
-      const item: IncomeData[] = (state as any)[name];
-      let ids: number[] = Array.from((state.expenseDelete as any)[name]);
-      if ((state as any)[name]) {
-        if (checked) {
-          item[index].isDelete = true;
-          ids.push(index);
-        } else {
-          item[index].isDelete = false;
-          ids = ids.filter((v) => v !== index);
-        }
-        (state.expenseDelete as any)[name] = ids;
-        if (name === FIELD_NAME.EXPENSES) {
-          let isAllExpenses = item.reduce((a, i) => a && i.isDelete, true);
-          if (isAllExpenses) {
-            state.expenseDelete.isIndeterminateExpenses = false;
-            state.expenseDelete.isAllExpenses = true;
-          } else if (ids.length === 0) {
-            state.expenseDelete.isIndeterminateExpenses = false;
-            state.expenseDelete.isAllExpenses = false;
-          } else {
-            state.expenseDelete.isIndeterminateExpenses = true;
-            state.expenseDelete.isAllExpenses = false;
-          }
-        } else {
-          let isAllNonExpenses = item.reduce((a, i) => a && i.isDelete, true);
-          if (isAllNonExpenses) {
-            state.expenseDelete.isIndeterminateNonExpenses = false;
-            state.expenseDelete.isAllNonExpenses = true;
-          } else if ((state.expenseDelete as any)[name].length === 0) {
-            state.expenseDelete.isIndeterminateNonExpenses = false;
-            state.expenseDelete.isAllNonExpenses = false;
-          } else {
-            state.expenseDelete.isIndeterminateNonExpenses = true;
-            state.expenseDelete.isAllNonExpenses = false;
-          }
-        }
-      }
-    },
-    deleteIncome: (state) => {
-      if (state.incomeDelete.isDelete) {
-        const filteredFixedIncome = state.fixedIncome.filter((_, i) => !state.incomeDelete.fixedIncome.includes(i));
-        const filteredPassiveIncome = state.passiveIncome.filter((_, i) => !state.incomeDelete.passiveIncome.includes(i));
-        if (filteredFixedIncome.length === 0) {
-          filteredFixedIncome.push({
-            amount: "", name: "", type: IncomeType.FIXED_INCOME, validation: {
-              amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-              name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-            },
-            isDelete: false
-          });
-        }
-        if (filteredPassiveIncome.length === 0) {
-          filteredPassiveIncome.push({
-            amount: "", name: "", type: IncomeType.PASSIVE_INCOME, validation: {
-              amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-              name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-            },
-            isDelete: false
-          });
-        }
-        return {
-          ...state,
-          fixedIncome: filteredFixedIncome,
-          passiveIncome: filteredPassiveIncome,
-          incomeDelete: {
-            isDelete: false,
-            fixedIncome: [],
-            passiveIncome: [],
-            isAllFixedIncome: false,
-            isAllPassiveIncome: false,
-            isIndeterminateFixedIncome: false,
-            isIndeterminatePassiveIncome: false
-          }
-        }
-      }
-    },
-    deleteExpense: (state) => {
-      if (state.expenseDelete.isDelete) {
-        const filteredExpenses = state.expenses.filter((_, i) => !state.expenseDelete.expenses.includes(i));
-        const filteredNonExpenses = state.nonExpenses.filter((_, i) => !state.expenseDelete.nonExpenses.includes(i));
-        // if (filteredExpenses.length === 0) {
-        //   filteredExpenses.push({
-        //     amount: "", name: "", type: ExpenseType.EXPENSE, validation: {
-        //       amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-        //       name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-        //     },
-        //     isDelete: false
-        //   });
-        // }
-        for (let i = filteredExpenses.length; i < 3; i++) {
-          filteredExpenses.push({
-            amount: "", name: "", type: ExpenseType.EXPENSE, validation: {
-              amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-              name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-            },
-            isDelete: false
-          });
-        }
-        // if (filteredNonExpenses.length === 0) {
-        //   filteredNonExpenses.push({
-        //     amount: "", name: "", type: ExpenseType.NON_EXPENSE, validation: {
-        //       amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-        //       name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-        //     },
-        //     isDelete: false
-        //   });
-        // }
-        for (let i = filteredNonExpenses.length; i < 3; i++) {
-          filteredNonExpenses.push({
-            amount: "", name: "", type: ExpenseType.NON_EXPENSE, validation: {
-              amount: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED },
-              name: { isValid: false, isFirst: true, type: VALIDATION_TYPE.REQUIRED }
-            },
-            isDelete: false
-          });
-        }
-        return {
-          ...state,
-          expenses: filteredExpenses,
-          nonExpenses: filteredNonExpenses,
-          expenseDelete: {
-            isDelete: false,
-            expenses: [],
-            nonExpenses: [],
-            isAllExpenses: false,
-            isAllNonExpenses: false,
-            isIndeterminateExpenses: false,
-            isIndeterminateNonExpenses: false
-          }
-        }
-      }
-    },
-    selectAllIncome: (state, action: PayloadAction<{ isAll: boolean, name: string }>) => {
-      const { isAll, name } = action.payload;
-      if (state.incomeDelete.isDelete) {
-        if (name === FIELD_NAME.FIXED_INCOME) {
-          state.incomeDelete.isAllFixedIncome = isAll;
-          state.incomeDelete.isIndeterminateFixedIncome = false;
-        } else {
-          state.incomeDelete.isAllPassiveIncome = isAll;
-          state.incomeDelete.isIndeterminatePassiveIncome = false;
-        }
-        if (isAll) {
-          (state.incomeDelete as any)[name] = ((state as any)[name] as IncomeData[]).map((v, i) => {
-            v.isDelete = true;
-            return i;
-          });
-        } else {
-          (state.incomeDelete as any)[name] = [];
-          ((state as any)[name] as IncomeData[]).forEach(v => {
-            v.isDelete = false;
-          })
-        }
-      }
-    },
-    selectAllExpense: (state, action: PayloadAction<{ isAll: boolean, name: string }>) => {
-      const { isAll, name } = action.payload;
-      if (state.expenseDelete.isDelete) {
-        if (name === FIELD_NAME.EXPENSES) {
-          state.expenseDelete.isAllExpenses = isAll;
-          state.expenseDelete.isIndeterminateExpenses = false;
-        } else {
-          state.expenseDelete.isAllNonExpenses = isAll;
-          state.expenseDelete.isIndeterminateNonExpenses = false;
-        }
-        if (isAll) {
-          (state.expenseDelete as any)[name] = ((state as any)[name] as IncomeData[]).map((v, i) => {
-            v.isDelete = true;
-            return i;
-          });
-        } else {
-          (state.expenseDelete as any)[name] = [];
-          ((state as any)[name] as IncomeData[]).forEach(v => {
-            v.isDelete = false;
-          })
-        }
-      }
-    },
-    addCurrentBalance: (state) => {
-      state.currentBalance = {
-        value: "",
-        validation: {
-          isFirst: true,
-          isValid: false
-        }
-      }
-    },
-    removeCurrentBalance: (state) => {
-      state.currentBalance = undefined;
-    },
     updateCurrentBalance: (state, action: PayloadAction<any>) => {
-      if (!state.currentBalance) return state;
-      
+      state.isChanged = true;
       const value = action.payload;
       state.currentBalance.value = value;
       state.currentBalance.validation.isValid = true;
@@ -685,11 +395,12 @@ export const formSlice = createSlice({
       state.currentBalance.validation.isFirst = false;
     },
     addDebt: (state) => {
+      state.isChanged = true;
       if (state.debts.length === 5) return state;
       state.debts.push({
         amount: "",
         annual: "",
-        name: "",
+        name: "Debt " +(state.debts.length + 1),
         payment: "",
         isDelete: false,
         validation: {
@@ -705,8 +416,7 @@ export const formSlice = createSlice({
           },
           name: {
             isFirst: true,
-            isValid: false,
-            type: VALIDATION_TYPE.REQUIRED
+            isValid: true
           },
           payment: {
             isFirst: true,
@@ -716,20 +426,8 @@ export const formSlice = createSlice({
         }
       });
     },
-    openDebt: (state) => {
-      state.debtDelete = {
-        isDelete: true,
-        items: []
-      }
-    },
-    closeDebt: (state) => {
-      state.debtDelete = {
-        isDelete: false,
-        items: []
-      }
-    },
     updateDebt: (state, action: PayloadAction<{name: DebtType, index: number, value: string}>) => {
-
+      state.isChanged = true;
       const {name, value, index} = action.payload;
       state.debts[index].validation[name].isFirst = false;
       state.debts[index].validation[name].type = undefined;
@@ -744,107 +442,88 @@ export const formSlice = createSlice({
       switch(name) {
         case "name":
           break;
+        case "annual":
+          let isAValid = !isNaN(+value);
+          if (!isAValid) {
+            state.debts[index].validation[name].isValid = false;
+            state.debts[index].validation[name].type = VALIDATION_TYPE.INVALID;
+          } else if (+value < 0) {
+            state.debts[index].validation[name].isValid = false;
+            state.debts[index].validation[name].type = VALIDATION_TYPE.POSITIVE;
+          }
+          break;
         default:
           let isValid = !isNaN(+value);
           if (!isValid) {
             state.debts[index].validation[name].isValid = false;
             state.debts[index].validation[name].type = VALIDATION_TYPE.INVALID;
           } else if (+value <= 0) {
+            state.debts[index].validation[name].isValid = false;
             state.debts[index].validation[name].type = VALIDATION_TYPE.LARGER_ZERO;
-            isValid = false;
           }
           break;
-      }
-    },
-    updateDebtDelete: (state, action: PayloadAction<{index: number, checked: boolean}>) => {
-      const { index, checked} = action.payload;
-      if (!state.debtDelete.isDelete) {
-        return state;
-      }
-      state.debts[index].isDelete = checked;
-      if (checked){
-        state.debtDelete.items.push(index);
-      } else {
-        state.debtDelete.items = state.debtDelete.items.filter((v) => v !== index);
-      }
-    },
-    deleteDebts: (state) => {
-      return {
-        ...state,
-        debts: state.debts.filter((debt, index) => !state.debtDelete.items.includes(index)),
-        debtDelete: {
-          isDelete: false,
-          items: []
-        }
       }
     },
     closeErrorMessage: (state) => {
       state.errorMessages = undefined;
     },
-    closeActionRequired: (state) => {
-      state.isActionRequired = false;
-    },
     submitForm: (state) => {
 
-      const isActionRequired = state.incomeDelete.isDelete || state.debtDelete.isDelete || state.expenseDelete.isDelete;
-
-      state.isActionRequired = isActionRequired;
-      if (isActionRequired) {
-        return state;
-      }
       let errors = [];
       let isIncomeValid = true;
       state.fixedIncome.forEach(income => {
         isIncomeValid = isIncomeValid && income.validation.amount.isValid && income.validation.name.isValid;
-        if (income.amount === "" || income.name === "") {
-          isIncomeValid = false;
-        }
+        // if (income.amount === "" || income.name === "") {
+        //   isIncomeValid = false;
+        // }
         income.validation.amount.isFirst = false;
         income.validation.name.isFirst = false;
       });
       state.passiveIncome.forEach(income => {
         isIncomeValid = isIncomeValid && income.validation.amount.isValid && income.validation.name.isValid;
-        if (income.amount === "" || income.name === "") {
-          isIncomeValid = false;
-        }
+        // if (income.amount === "" || income.name === "") {
+        //   isIncomeValid = false;
+        // }
         income.validation.amount.isFirst = false;
         income.validation.name.isFirst = false;
       });
-      if (!isIncomeValid) errors.push(FORM_FIELD.INCOME);
+
+      // if (!isIncomeValid) errors.push(FORM_FIELD.INCOME);
       
       //Validation Expense
       let isExpensesValid = true;
       state.expenses.forEach(expense => {
         isExpensesValid = isExpensesValid && expense.validation.amount.isValid && expense.validation.name.isValid;
-        if (expense.amount === "" || expense.name === "") {
-          isExpensesValid = false;
-        }
+        // if (expense.amount === "" || expense.name === "") {
+        //   isExpensesValid = false;
+        // }
         expense.validation.amount.isFirst = false;
         expense.validation.name.isFirst = false;
       });
-      if (!isExpensesValid) errors.push(FORM_FIELD.EXPENSES);
+      state.nonExpenses.forEach(nonExpense => {
+        isExpensesValid = isExpensesValid && nonExpense.validation.amount.isValid && nonExpense.validation.name.isValid;
+        nonExpense.validation.amount.isFirst = false;
+        nonExpense.validation.name.isFirst = false;
+      });
+      let isDebtValid = true;
+      state.debts.forEach(debt => {
+        isDebtValid = debt.validation.amount.isValid && debt.validation.annual.isValid && debt.validation.name.isValid && debt.validation.payment.isValid;
+        debt.validation.amount.isFirst = false;
+        debt.validation.annual.isFirst = false;
+        debt.validation.name.isFirst = false;
+        debt.validation.payment.isFirst = false;
+      });
+      // if (!isExpensesValid) errors.push(FORM_FIELD.EXPENSES);
 
       if (!state.currentBalance || !state.currentBalance.validation.isValid || isNaN(+state.currentBalance.value)) {
         errors.push(FORM_FIELD.BALANCE);
       }
       let shouldForm = true;
+      shouldForm = shouldForm && isIncomeValid && isExpensesValid && isDebtValid;
       if (state.currentBalance && !state.currentBalance.validation.isValid) {
         shouldForm = false;
         state.currentBalance.validation.isFirst = false;
       }
-      if (state.debts.length > 0) {
-        shouldForm = state.debts.reduce((acc, item) => {
-          item.validation.amount.isFirst = false;
-          item.validation.annual.isFirst = false;
-          item.validation.name.isFirst = false;
-          item.validation.payment.isFirst = false;
-          return acc && item.validation.amount.isValid && 
-          item.validation.annual.isValid &&
-          item.validation.name.isValid &&
-          item.validation.payment.isValid
-        }, true);
-      }
-      
       if (errors.length > 0) {
           state.errorMessages= errors;
       } else {
@@ -866,6 +545,7 @@ export const formSlice = createSlice({
       state.isSubmit = false;
     },
     updateForm: (state, action: PayloadAction<string>) =>  {
+      state.isChanged = true;
         const item = action.payload;
         state.currentBalance = {
           value: item.toString(),
@@ -891,95 +571,83 @@ export const formSlice = createSlice({
             }
           }
         }
+        state.fixedIncome = [];
+        state.passiveIncome = [];
+        state.expenses = [];
+        state.nonExpenses = [];
+        state.debts = [];
         if (data.incomes) {
-          const isContainFixed = data.incomes.findIndex(income => income.type === IncomeType.FIXED_INCOME) > -1;
-          const isContainPassive = data.incomes.findIndex(income => income.type === IncomeType.PASSIVE_INCOME) > -1;
-          if (isContainFixed) {
-            state.fixedIncome = [];
-          }
-          if (isContainPassive) {
-            state.passiveIncome = [];
-          }
+
           data.incomes.forEach((income, index) => {
-            if ((index + 1) <= INCOME_MAX_ITEMS) {
-              const i = {
-                id: income.id,
-                amount: income.amount.toString(), name: income.name, type: income.type, validation: {
-                  amount: { isValid: true, isFirst: false, type: VALIDATION_TYPE.REQUIRED },
-                  name: { isValid: true, isFirst: false, type: VALIDATION_TYPE.REQUIRED }
-                },
-                isDelete: false
-              }
-              if (i.type === IncomeType.FIXED_INCOME) {
-                state.fixedIncome.push(i);
-              } else {
-                state.passiveIncome.push(i);
-              }
+            const i = {
+              id: income.id,
+              amount: income.amount ? income.amount.toString(): "", name: income.name, type: income.type, validation: {
+                amount: { isValid: true, isFirst: false, type: VALIDATION_TYPE.REQUIRED },
+                name: { isValid: true, isFirst: false, type: VALIDATION_TYPE.REQUIRED }
+              },
+              isDelete: false,
+              isFixed: income.type === IncomeType.FIXED_INCOME ? isFixedActiveIncome(income.name) : isFixedPassiveIncome(income.name)
+            }
+            if (i.type === IncomeType.FIXED_INCOME) {
+              state.fixedIncome.push(i);
+            } else {
+              state.passiveIncome.push(i);
             }
           });
-          const isContainExpense = !data.expenses ? false : data.expenses.findIndex(expense => expense.type === ExpenseType.EXPENSE) > -1;
-          const isContainNonExpense = !data.expenses ? false :  data.expenses.findIndex(expense => expense.type === ExpenseType.NON_EXPENSE) > -1;
-          if (isContainExpense) {
-            state.expenses = [];
-          }
-          if (isContainNonExpense) {
-            state.nonExpenses = [];
-          }
-          if (data.expenses) {
-            data.expenses.forEach((expense, index) => {
-              if ((index + 1) <= EXPENSE_MAX_ITEMS) {
-                const i = {
-                  id: expense.id,
-                  amount: expense.amount.toString(), name: expense.name, type: expense.type, validation: {
-                    amount: { isValid: true, isFirst: false, type: VALIDATION_TYPE.REQUIRED },
-                    name: { isValid: true, isFirst: false, type: VALIDATION_TYPE.REQUIRED }
-                  },
-                  isDelete: false
-                }
-                if (i.type === ExpenseType.EXPENSE) {
-                  state.expenses.push(i);
-                } else {
-                  state.nonExpenses.push(i);
-                }
+          
+        }
+        if (data.expenses) {
+          data.expenses.forEach((expense, index) => {
+            const i = {
+              id: expense.id,
+              amount: expense.amount ? expense.amount.toString(): "", name: expense.name, type: expense.type, validation: {
+                amount: { isValid: true, isFirst: false, type: VALIDATION_TYPE.REQUIRED },
+                name: { isValid: true, isFirst: false, type: VALIDATION_TYPE.REQUIRED }
+              },
+              isDelete: false,
+              isFixed: expense.type === ExpenseType.EXPENSE ? isFixedExpenseIncome(expense.name): isFixedNonExpenseIncome(expense.name)
+            }
+            if (i.type === ExpenseType.EXPENSE) {
+              state.expenses.push(i);
+            } else {
+              state.nonExpenses.push(i);
+            }
+          });
+        }
+
+        if (data.debts) {
+          data.debts.forEach((debt, index) => {
+            state.debts.push({
+              id: debt.id,
+              amount: debt.remaining_amount.toString(),
+              annual: debt.annual_interest.toString(),
+              name: debt.name,
+              payment: debt.monthly_payment.toString(),
+              isDelete: false,
+              validation: {
+                amount: {
+                  isFirst: false,
+                  isValid: true,
+                  type: VALIDATION_TYPE.REQUIRED
+                },
+                annual: {
+                  isFirst: false,
+                  isValid: true,
+                  type: VALIDATION_TYPE.REQUIRED
+                },
+                name: {
+                  isFirst: false,
+                  isValid: true,
+                  type: VALIDATION_TYPE.REQUIRED
+                },
+                payment: {
+                  isFirst: false,
+                  isValid: true,
+                  type: VALIDATION_TYPE.REQUIRED
+                },
               }
             });
-          }
-          if (data.debts) {
-            data.debts.forEach((debt, index) => {
-              if ((index + 1) <= INCOME_MAX_ITEMS) {
-                state.debts.push({
-                  id: debt.id,
-                  amount: debt.remaining_amount.toString(),
-                  annual: debt.annual_interest.toString(),
-                  name: debt.name,
-                  payment: debt.monthly_payment.toString(),
-                  isDelete: false,
-                  validation: {
-                    amount: {
-                      isFirst: false,
-                      isValid: true,
-                      type: VALIDATION_TYPE.REQUIRED
-                    },
-                    annual: {
-                      isFirst: false,
-                      isValid: true,
-                      type: VALIDATION_TYPE.REQUIRED
-                    },
-                    name: {
-                      isFirst: false,
-                      isValid: true,
-                      type: VALIDATION_TYPE.REQUIRED
-                    },
-                    payment: {
-                      isFirst: false,
-                      isValid: true,
-                      type: VALIDATION_TYPE.REQUIRED
-                    },
-                  }
-                });
-              }
-            });
-          }
+          });
         }
       }
       
@@ -993,21 +661,55 @@ export const formSlice = createSlice({
     },
     setSelections: (state, action: PayloadAction<Choice[]>) => {
       state.selections = action.payload;
+    },
+    setFocus: (state, action: PayloadAction<{isFocus: boolean, field: FocusFields, index: number}>) => {
+      const {isFocus, field, index} = action.payload;
+      if (isFocus) {
+        state.focus = {
+          [field]: index
+        }
+        state.deleteId = `checkbox-item-${field}-${index}`;
+      } else {
+        // if (!state.focus[field]) {
+
+        // }
+        // state.focus[field] = undefined;
+      }
+    },
+    deleteItem: (state, action: PayloadAction<{index: number, field: FocusFields}>) => {
+      const {index, field} = action.payload;
+      const id = `checkbox-item-${field}-${index}`;
+      if (id !== state.deleteId) {
+        return;
+      }
+      state.isChanged = true;
+     
+      const items: any[] = state[field];
+      const list: any[] = [];
+      items.forEach((value,ind) => {
+        if (ind !== index) {
+          list.push(Object.assign({}, value));
+        } else {
+          if (value.id) {
+            state.deleteItems[field].push(value.id);
+          }
+        }
+      });
+      state[field] = Array.from(list);
+    },
+    setDeleteId: (state, action: PayloadAction<string | undefined>) => {
+      state.deleteId = action.payload;
     }
   },
-})
+});
 
 // Action creators are generated for each case reducer function
 export const { addFixedIncome, addPassiveIncome, updateField, openModal, closeModal,
   updateModal, submitModal, addExpense, addNonExpense,
-  openIncomeDelete, closeIncomeDelete,
-  updateIncomeDelete, deleteIncome, selectAllIncome,
-  openExpenseDelete, closeExpenseDelete,
-  updateExpenseDelete, 
-  deleteExpense, selectAllExpense, addCurrentBalance, removeCurrentBalance, updateCurrentBalance, 
-  addDebt, openDebt, closeDebt, updateDebt, updateDebtDelete, deleteDebts,submitForm, closeErrorMessage,
+  updateCurrentBalance, 
+  addDebt, updateDebt,submitForm, closeErrorMessage,
   sendForm, sendFormComplete, sendFormFailure, getFormData, getFormDataSuccess, getFormDataFailure, clearForm,
-  setSelections } =
+  setSelections, setFocus, deleteItem, setDeleteId } =
   formSlice.actions
 
 export default formSlice.reducer

@@ -1,4 +1,5 @@
 import CustomTabs, { TabProps } from "@/components/CustomTabs";
+import WarningModal from "@/components/WarningModal";
 import FinancialInformation from "@/components/financial-information";
 import MultiplesEssentialExpensesFields from "@/components/financial-information/multiplesEssentialExpensesFields";
 import SummaryInfo from "@/components/information/summary-info";
@@ -6,7 +7,7 @@ import withAuth from "@/components/with-auth";
 import withLoading from "@/components/with-loading";
 import { clearForm } from "@/redux/formSlice";
 import { RootState } from "@/redux/store";
-import { SECTION_TABS, setIsAdvanceAction } from "@/redux/tabSlice";
+import { SECTION_TABS } from "@/redux/tabSlice";
 import { Toggle } from "carbon-components-react";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
@@ -16,6 +17,11 @@ import { useDispatch, useSelector } from "react-redux";
 
 const tabs: TabProps[] = [
     {
+        name: "Current balance",
+        isActive: false,
+        id: SECTION_TABS.CURRENT_BALANCE
+    },
+    {
         name: "Income",
         isActive: true,
         id: SECTION_TABS.INCOME
@@ -24,11 +30,6 @@ const tabs: TabProps[] = [
         name: "Expenses",
         isActive: false,
         id: SECTION_TABS.EXPENSE
-    },
-    {
-        name: "Current balance",
-        isActive: false,
-        id: SECTION_TABS.CURRENT_BALANCE
     },
     {
         name: "Debt",
@@ -57,13 +58,12 @@ const AdvanceOption = ({ checked, onToggle }: { checked: boolean, onToggle: (che
 const HomePage: NextPage = (props) => {
     const {authData, loading, setIsNew} = props as any;
 
-    const { form, tab } = useSelector((state: RootState) => state);
-    const {code, selections} = form;
+    const { form, tab, notification } = useSelector((state: RootState) => state);
+    const {code, selections, isChanged} = form;
+    const {codeModal} = notification;
+    const {isSuccess} = codeModal;
     const dispatch = useDispatch();
     const {push} = useRouter();
-    const handleOnToggle = (checked: boolean) => {
-        dispatch(setIsAdvanceAction(checked));
-    }
 
     useEffect(() => {
         if (code) {
@@ -73,6 +73,29 @@ const HomePage: NextPage = (props) => {
         }
     },[code, push, setIsNew, dispatch]);
 
+    useEffect(() => {
+        
+        let listenter: any = null;
+          if (isChanged) {
+            listenter = function (e: any) {
+                // Cancel the event
+                e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+                // Chrome requires returnValue to be set
+                e.returnValue = '';
+              };
+              window.addEventListener('beforeunload', listenter);
+          }
+          if (isSuccess && listenter) {
+            window.removeEventListener("beforeunload", listenter);
+          }
+        return () => {
+            if (listenter) {
+                window.removeEventListener("beforeunload", listenter);
+            }
+        }
+    },[isChanged, isSuccess]);
+
+
     return <div className="h-full w-full bg-background">
         <div className="sticky top-16 left-0 w-full flex items-center justify-center z-10">
             <div className="h-container h-container-no-padding bg-white py-5 px-8">
@@ -80,20 +103,13 @@ const HomePage: NextPage = (props) => {
             </div>
         </div>
         <div className="cds--grid h-container py-8">
-            <div className="adv-action mobile"><AdvanceOption 
-            checked={tab.isAdvanceAction} 
-            onToggle={handleOnToggle} /></div>
             <div className="cds--row flex justify-center relative">
                 <div className="cds--col-max-4 cds--col-xlg-4 cds--col-lg-4 cds--col-md-0 cds--col-sm-0 sticky left-0 pl-0 pt-6 h-fit"
                     style={{ top: (68 + 64), height: 'calc(100vh - 68px - 64px - 2rem)' }}>
                     <CustomTabs items={tabs} activeTab={tab.activeTab} />
-                    <div className="summary-adv-action adv-action large"><AdvanceOption 
-                    checked={tab.isAdvanceAction} 
-                    onToggle={handleOnToggle} /></div>
                 </div>
                 <div className="cds--col-max-8 cds--col-xlg-8 cds--col-lg-8 cds--col-md-6 cds--col-sm-3 bg-white">
-                    <FinancialInformation form={form} isAdvanceAction={tab.isAdvanceAction} auth={authData} 
-                    loading = {loading} />
+                    <FinancialInformation form={form} auth={authData} />
                     <MultiplesEssentialExpensesFields selections={selections} />
                 </div>
                 <div className="cds--col-max-4 cds--col-xlg-4 cds--col-lg-4 cds--col-md-2 cds--col-sm-1 sticky right-0 h-fit"
@@ -102,6 +118,7 @@ const HomePage: NextPage = (props) => {
                 </div>
             </div>
         </div>
+        <WarningModal/>
     </div>
 }
 

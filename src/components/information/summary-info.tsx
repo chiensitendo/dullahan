@@ -1,3 +1,4 @@
+import { numberWithCommas } from "@/pages/result";
 import {
   CurrentBalance,
   DebtData,
@@ -8,24 +9,25 @@ import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
 
 const SummaryInfoItemValue = (props: { value?: string }) => (
-  <p className="heading-03 text-placeholder break-words">
+  <p className={`heading-03 ${!props.value ? 'text-placeholder': 'text-black'} break-words`}>
     ${!props.value ? "--" : props.value}
   </p>
 );
 
 const SummaryInfoItem = (props: SummaryInfoItemProps) => {
   const { title, child, value } = props;
+  
   return (
     <div className="mb-6">
       <p className="label-02 mb-2">{title}</p>
-      {!child && <SummaryInfoItemValue value={value} />}
+      {!child && <SummaryInfoItemValue value={!value || isNaN(+value) ? undefined:  numberWithCommas(+value)} />}
       {child && (
         <div className="flex justify-between flex-wrap summary-info-item-wrap-child">
           {child.map((item, index) => {
             return (
               <div key={index} className="pr-4 summary-info-item-child">
                 <p className="label-01">{item.title}</p>
-                <SummaryInfoItemValue value={item.value} />
+                <SummaryInfoItemValue value={!item.value || isNaN(+item.value) ? undefined:  numberWithCommas(+item.value)} />
               </div>
             );
           })}
@@ -53,9 +55,8 @@ const SummaryInfo = () => {
     expenses,
     nonExpenses,
     currentBalance,
-    debts,
+    debts
   } = useSelector((state: RootState) => state.form);
-
   return (
     <div className="w-full">
       <div>
@@ -101,22 +102,27 @@ const SummaryInfo = () => {
 };
 
 const getIncomeSummary = (items: IncomeData[]): string => {
-  return items
-    .filter((item) => !!item.amount)
-    .map((item) => item.amount)
-    .filter((amount) => !isNaN(+amount))
+  const filteredItems = items
+  .filter((item) => !!item.amount)
+  .map((item) => item.amount)
+  .filter((amount) => !isNaN(+amount));
+
+  if (filteredItems.length === 0) return "--";
+  return filteredItems
     .reduce((accumulator, currentValue) => accumulator + +currentValue, 0)
-    .toFixed(3)
+    .toFixed(0)
     .toString();
 };
 
 const getExpenseSummary = (items: ExpenseData[]): string => {
-  return items
-    .filter((item) => !!item.amount)
-    .map((item) => item.amount)
-    .filter((amount) => !isNaN(+amount))
+  const filteredItems = items
+  .filter((item) => !!item.amount)
+  .map((item) => item.amount)
+  .filter((amount) => !isNaN(+amount));
+  if (filteredItems.length === 0) return "--";
+  return filteredItems
     .reduce((accumulator, currentValue) => accumulator + +currentValue, 0)
-    .toFixed(3)
+    .toFixed(0)
     .toString();
 };
 
@@ -132,29 +138,31 @@ const getCurrentBalance = (item: CurrentBalance | undefined): string => {
 };
 
 const getDebtMonth = (debts: DebtData[]) => {
-  if (debts.length === 0) return "--";
-  return debts
-    .filter((debt) => debt.payment && !isNaN(+debt.payment))
+  const filteredItems = debts
+  .filter((debt) => debt.payment && !isNaN(+debt.payment));
+  if (filteredItems.length === 0) return "--";
+  return filteredItems
     .reduce(
       (accumulator, currentValue) => accumulator + +currentValue.payment,
       0
     )
-    .toFixed(3)
+    .toFixed(0)
     .toString();
 };
 
 const getInterestPaid = (debts: DebtData[]) => {
-  if (debts.length === 0) return "--";
-  return debts
-    .filter((debt) => debt.payment && !isNaN(+debt.payment))
-    .filter((debt) => debt.annual && !isNaN(+debt.annual))
+  const filteredItems = debts
+  .filter((debt) => debt.payment && !isNaN(+debt.payment))
+  .filter((debt) => debt.annual && !isNaN(+debt.annual));
+  if (filteredItems.length === 0) return "--";
+  return filteredItems
     .reduce(
       (accumulator, currentValue) =>
         accumulator +
         calculateInterestPaid(+currentValue.payment, +currentValue.annual),
       0
     )
-    .toFixed(3)
+    .toFixed(0)
     .toString();
 };
 

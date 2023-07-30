@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import {
   DebtType,
   ExpenseData,
@@ -6,36 +6,23 @@ import {
   FormStateItem,
   IncomeData,
   ValidationItem,
-  addCurrentBalance,
   addDebt,
   addExpense,
   addFixedIncome,
   addNonExpense,
   addPassiveIncome,
-  closeDebt,
   closeErrorMessage,
-  closeExpenseDelete,
-  closeIncomeDelete,
-  deleteDebts,
-  deleteExpense,
-  deleteIncome,
-  openDebt,
-  openExpenseDelete,
-  openIncomeDelete,
+  deleteItem,
   openModal,
-  removeCurrentBalance,
-  selectAllExpense,
-  selectAllIncome,
   sendForm,
+  setDeleteId,
+  setFocus,
   submitForm,
   updateCurrentBalance,
   updateDebt,
-  updateDebtDelete,
-  updateExpenseDelete,
   updateField,
-  updateIncomeDelete,
 } from "@/redux/formSlice";
-import { Choice, ExpenseType, FORM_FIELD, IncomeType, VALIDATION_TYPE } from "@/type";
+import { Choice, ExpenseType, IncomeType, VALIDATION_TYPE } from "@/type";
 import {
   EXPENSE_MAX_ITEMS,
   INCOME_MAX_ITEMS,
@@ -44,6 +31,7 @@ import {
   MULTIPLES_NON_ESSENTIAL_EXPENSES_FIELDS,
   MULTIPLES_PASSIVE_INCOME_FIELDS,
   getValidationMessage,
+  tooltipText,
 } from "@/type/const";
 import {
   ActionCreatorWithPayload,
@@ -51,18 +39,18 @@ import {
   AnyAction,
 } from "@reduxjs/toolkit";
 import {
-  Checkbox,
   InlineNotification,
   PrimaryButton,
   TextInput,
 } from "carbon-components-react";
 import { ChangeEventHandler, Dispatch, useMemo } from "react";
 import { useDispatch } from "react-redux";
-import { TrashCan, Close, ArrowRight } from "@carbon/icons-react";
+import { Close, ArrowRight, Information } from "@carbon/icons-react";
 import classNames from "classnames";
 import { useInView } from "react-intersection-observer";
 import { SECTION_TABS, setActiveTab } from "@/redux/tabSlice";
 import { AuthData } from "../use-auth";
+import { Toggletip, ToggletipButton, ToggletipContent } from "../Toggletip";
 
 const debtLabel = {
   name: "Name",
@@ -84,41 +72,36 @@ const InputField = (props: InputFieldProps) => {
     inputName,
     defaultValue,
     isFirst,
-    isDeleteMode,
     inputClassName,
+    onFocus,
+    onBlur,
     onChange,
+    value,
+    id,
+    disabled
   } = props;
+  const inputRef: React.Ref<HTMLInputElement> = useRef(null);
   return (
     <div>
-      {!isDeleteMode && (
-        <TextInput
-          id={name}
-          defaultValue={defaultValue + ""}
-          name={inputName}
-          invalidText={
-            isValid ? undefined : getValidationMessage(invalidType, name)
-          }
-          labelText={label}
-          onChange={onChange}
-          placeholder={placeholder}
-          disabled={isDeleteMode}
-          invalid={!isValid && !isFirst}
-          className={inputClassName}
-          style={{ borderBottom: removeBorderBottom ? "none" : undefined }}
-        />
-      )}
-      {isDeleteMode && (
-        <div className="flex h-full flex-col">
-          {label && (
-            <div className="cds--text-input__label-wrapper">
-              <label className="cds--label">{label}</label>
-            </div>
-          )}
-          <div className="delete-input-item h-full cds--text-input__label-wrapper">
-            {defaultValue}
-          </div>
-        </div>
-      )}
+      <TextInput
+        id={id + ""}
+        defaultValue={defaultValue + ""}
+        name={inputName}
+        ref={inputRef}
+        invalidText={
+          isValid ? undefined : getValidationMessage(invalidType, name)
+        }
+        value={value}
+        labelText={label}
+        onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        disabled={disabled}
+        placeholder={placeholder}
+        invalid={!isValid && !isFirst}
+        className={inputClassName}
+        style={{ borderBottom: removeBorderBottom ? "none" : undefined }}
+      />
     </div>
   );
 };
@@ -134,43 +117,72 @@ const FinancialInformationFieldGroup = (props: FieldGroupProps) => {
     addMultipleItems,
     max,
     isBorderBottom,
-    isDeleteMode,
-    updateDelete,
-    selectAll,
-    isAll,
-    isIndeterminate,
-    isAdvanceAction,
     selections,
-    type
+    type,
+    focusIndex,
   } = props;
 
   const components = useMemo(() => {
     let list: any[] = [];
     items.data.forEach((d, index) => {
+      let isAllValid = true;
       let inputFields = items.props.map((prop, ind) => {
-        const isAllValid = Object.keys(d.validation).reduce(
-          (accumulator, currentValue) =>
-            accumulator &&
-            ((d.validation as any)[currentValue]["isValid"] ||
-              (d.validation as any)[currentValue]["isFirst"]),
-          true
-        );
-        const removeBorderBottom = index <= items.data.length - 2 && isAllValid;
+        const removeBorderBottom = index <= items.data.length - 2;
         const fieldValue = (d as any)[prop.name];
+        const isValid = ((d.validation as any)[prop.name] as any)["isValid"];
+        isAllValid = isAllValid && isValid;
+
         return (
           <InputField
             key={index + "-" + ind}
             placeholder={prop.placeholder}
             label={index === 0 ? prop.label : ""}
             name={prop.name}
+            id={`${name}[${index}].${prop.name}`}
             inputName={`${name}[${index}].${prop.name}`}
             removeBorderBottom={removeBorderBottom}
             defaultValue={fieldValue}
+            value={fieldValue}
             isFirst={((d.validation as any)[prop.name] as any)["isFirst"]}
-            isValid={((d.validation as any)[prop.name] as any)["isValid"]}
+            isValid={isValid}
             invalidType={((d.validation as any)[prop.name] as any)["type"]}
-            isDeleteMode={isDeleteMode}
             index={index}
+            disabled = {prop.name === "name" && d.isFixed}
+            onFocus={() => {
+              const ele = document.getElementById(
+                `checkbox-item-${name}-${index}`
+              );
+              if (ele) {
+                (ele as any).checked = true;
+              }
+              dispatch(
+                setFocus({
+                  isFocus: true,
+                  field: name as any,
+                  index: index,
+                })
+              );
+            }}
+            onBlur={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const ele = document.getElementById(
+                `checkbox-item-${name}-${index}`
+              );
+              if (ele) {
+                (ele as any).checked = false;
+              }
+              setTimeout(() => {
+                dispatch(setDeleteId(undefined));
+              },100);
+              dispatch(
+                setFocus({
+                  isFocus: false,
+                  field: name as any,
+                  index: index,
+                })
+              );
+            }}
             onChange={(e) => {
               dispatch(
                 updateField({
@@ -184,133 +196,104 @@ const FinancialInformationFieldGroup = (props: FieldGroupProps) => {
           />
         );
       });
-      if (isDeleteMode) {
-        list.push([
-          [
-            <div
-              key={list.length}
-              className={classNames(
-                "financial-information-field-delete-checkbox-group",
-                {
-                  "final-checkbox":
-                    isDeleteMode &&
-                    index > 0 &&
-                    index === items.data.length - 1,
-                }
-              )}
-            >
-              {index === 0 && (
-                <div className="check-all w-full">
-                  <Checkbox
-                    labelText=""
-                    id={`"checked-${name}-all"`}
-                    onChange={(
-                      _: React.ChangeEvent<HTMLInputElement>,
-                      data: {
-                        checked: boolean;
-                        id: string;
-                      }
-                    ) => {
-                      selectAll &&
-                        dispatch(
-                          selectAll({
-                            name: name,
-                            isAll: data.checked,
-                          })
-                        );
-                    }}
-                    indeterminate={isIndeterminate}
-                    checked={isAll}
-                  />
-                </div>
-              )}
-              <Checkbox
-                labelText=""
-                id={"checked-" + name + index}
-                onChange={(
-                  _: React.ChangeEvent<HTMLInputElement>,
-                  data: {
-                    checked: boolean;
-                    id: string;
-                  }
-                ) => {
-                  updateDelete &&
-                    dispatch(
-                      updateDelete({
-                        index: index,
-                        name: name,
-                        checked: data.checked,
-                      })
-                    );
-                }}
-                checked={d.isDelete}
-              />
-            </div>,
-          ],
-          ...inputFields,
-        ]);
-      } else {
-        list.push(inputFields);
-      }
+      inputFields.push(
+        <div
+          key={inputFields.length}
+          className="flex flex-col items-center justify-center close-wrapper"
+          style={{ marginTop: index === 0 ? "36px" : undefined }}
+          onClick={(e) => {
+            dispatch(deleteItem({ index, field: name as any }));
+          }}
+        >
+          <input
+            className="checkbox-item"
+            id={`checkbox-item-${name}-${index}`}
+            hidden
+            type="checkbox"
+          />
+          <Close
+            className="cursor-pointer"
+            style={{ marginBottom: isAllValid ? undefined : "16px" }}
+            onClick={(e) => {
+              dispatch(deleteItem({ index, field: name as any }));
+            }}
+          />
+        </div>
+      );
+
+      list.push(inputFields);
     });
     return list;
-  }, [items, isDeleteMode, isAll, isIndeterminate]);
+  }, [items, focusIndex]);
   const borderClass = useMemo(() => {
     if (isBorderBottom) {
-      return " border-subtitle-00 pb-6";
+      return " border-subtitle-00 pb-8";
     }
     return "";
   }, [isBorderBottom]);
   return (
     <div className={"mt-4" + borderClass}>
-      <p className="heading-01" style={{ fontWeight: 600 }}>
-        {title}
-      </p>
+      <div className="flex items-center">
+        <p className="heading-01 mr-2" style={{ fontWeight: 600 }}>
+          {title}
+        </p>
+        <Toggletip align="top-left">
+          <ToggletipButton label="Additional information">
+            <Information />
+          </ToggletipButton>
+          <ToggletipContent>
+            <p className="text-white heading-01">{(tooltipText as any)[name as any]}</p>
+          </ToggletipContent>
+        </Toggletip>
+      </div>
       <div
         className={classNames(
           "financial-information-field-group-input-wrapper",
-          {
-            "is-delete-mode": isDeleteMode,
-            "is-view-mode": !isDeleteMode,
-          }
+          "is-view-mode"
         )}
       >
         {components}
       </div>
-      {!isDeleteMode && (
-        <div className="flex p-4 items-center">
+      <div className="flex p-4 items-center">
+        <p
+          className={`body-compact-01 mr-8 ${
+            items.data.length < max
+              ? "text-focus cursor-pointer hover:underline"
+              : "text-disabled"
+          }`}
+          onClick={() => items.data.length < max && dispatch(add())}
+        >
+          Add custom
+        </p>
+        {true && (
           <p
-            className="text-focus body-compact-01 pr-4 cursor-pointer"
-            onClick={() => dispatch(add())}
+            className={`body-compact-01 mr-8 ${
+              items.data.length < max
+                ? "text-focus cursor-pointer hover:underline"
+                : "text-disabled"
+            }`}
+            onClick={() =>
+              items.data.length < max &&
+              dispatch(
+                addMultipleItems({
+                  name: name,
+                  max: max,
+                  selections: selections,
+                  type: type,
+                })
+              )
+            }
           >
-            Add
+            Choose from suggestion
           </p>
-          {isAdvanceAction && (
-            <p
-              className="text-focus body-compact-01 pr-4 cursor-pointer"
-              onClick={() =>
-                dispatch(
-                  addMultipleItems({
-                    name: name,
-                    max: max,
-                    selections: selections,
-                    type: type
-                  })
-                )
-              }
-            >
-              Add multiple
-              <span className="pl-2">+</span>
-            </p>
-          )}
-          <p
-            className="text-helper helper-text-01"
-            style={{ lineHeight: "17px" }}
-          >
-            ({max - items.data.length}/{max} fields left)
-          </p>
-        </div>
-      )}
+        )}
+        <p
+          className="text-helper helper-text-01"
+          style={{ lineHeight: "17px" }}
+        >
+          ({max - items.data.length}/{max} fields left)
+        </p>
+      </div>
     </div>
   );
 };
@@ -333,27 +316,9 @@ interface FieldGroupProps {
   dispatch: Dispatch<AnyAction>;
   max: number;
   isBorderBottom?: boolean;
-  isDeleteMode: boolean;
-  updateDelete?: ActionCreatorWithPayload<
-    {
-      index: number;
-      name: string;
-      checked: boolean;
-    },
-    any
-  >;
-  selectAll?: ActionCreatorWithPayload<
-    {
-      isAll: boolean;
-      name: string;
-    },
-    any
-  >;
-  isAll: boolean;
-  isIndeterminate: boolean;
-  isAdvanceAction: boolean;
   selections: Choice[];
   type: string;
+  focusIndex?: number;
 }
 
 interface FieldGroupItem {
@@ -367,47 +332,46 @@ interface InputFieldProps {
   name: string;
   inputName?: string;
   removeBorderBottom?: boolean;
+  id?: string;
   onChange?: ChangeEventHandler<HTMLInputElement> | undefined;
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement> | undefined;
   isValid?: boolean;
   isFirst?: boolean;
   invalidType?: VALIDATION_TYPE;
   defaultValue?: string;
-  isDeleteMode?: boolean;
   index?: number;
   inputClassName?: string;
+  value?: string;
+  onFocus?: React.FocusEventHandler<HTMLInputElement> | undefined;
+  onBlur?: React.FocusEventHandler<HTMLInputElement> | undefined;
+  disabled?: boolean;
 }
 
 const FinancialInformation = memo(
   ({
     form,
-    isAdvanceAction,
     auth,
-    loading
   }: {
     form: FormState;
-    isAdvanceAction: boolean;
     auth: AuthData;
-    loading: boolean;
   }) => {
     const {
       fixedIncome,
       passiveIncome,
       expenses,
       nonExpenses,
-      incomeDelete,
-      expenseDelete,
       currentBalance,
       debts,
-      debtDelete,
       errorMessages,
-      isActionRequired,
       shouldSent,
       isSubmit,
-      isEdit
+      isEdit,
+      focus,
     } = form;
     const dispatch = useDispatch();
+
     const incomeInView = useInView({
-      threshold: 0.5,
+      threshold: 0.1,
     });
     const debtInView = useInView({
       threshold: 0.5,
@@ -416,16 +380,27 @@ const FinancialInformation = memo(
       threshold: 0.5,
     });
     const currentBalanceInView = useInView({
-      threshold: 0.5,
+      threshold: 1,
     });
 
+    const formRef: React.LegacyRef<HTMLFormElement> = useRef(null);
+
+    useEffect(() => {
+      if (formRef.current) {
+        formRef.current.scrollBy({
+          top: 200,
+          left: 0,
+        });
+      }
+    }, [formRef]);
+
     useMemo(() => {
-      if (incomeInView.inView) {
+      if (currentBalanceInView.inView) {
+        dispatch(setActiveTab(SECTION_TABS.CURRENT_BALANCE));
+      } else if (incomeInView.inView) {
         dispatch(setActiveTab(SECTION_TABS.INCOME));
       } else if (expenseInView.inView) {
         dispatch(setActiveTab(SECTION_TABS.EXPENSE));
-      } else if (currentBalanceInView.inView) {
-        dispatch(setActiveTab(SECTION_TABS.CURRENT_BALANCE));
       } else if (debtInView.inView) {
         dispatch(setActiveTab(SECTION_TABS.DEBT));
       }
@@ -443,7 +418,7 @@ const FinancialInformation = memo(
           sendForm({
             auth: auth,
             form: form,
-            isEdit: isEdit
+            isEdit: isEdit,
           })
         );
       }
@@ -489,29 +464,49 @@ const FinancialInformation = memo(
       };
     }, [nonExpenses]);
 
-    const canDeleteIncome = useMemo(() => {
-      if (fixedIncome.length === 1 && passiveIncome.length === 1) {
-        return false;
-      }
-
-      return true;
-    }, [fixedIncome, passiveIncome]);
-    const canDeleteExpense = useMemo(() => {
-      if (expenses.length === 1 && nonExpenses.length === 1) {
-        return false;
-      }
-
-      return true;
-    }, [expenses, nonExpenses]);
-
     return (
       <form
-        className="pb-8"
+        className="pb-8 dullahan-form-wrapper"
+        id="dullahan-form"
         onSubmit={(e) => {
           e.preventDefault();
         }}
+        ref={formRef}
       >
-        <div className="flex items-center justify-between pb-2 pt-6">
+        <div
+          className="border-subtitle-00 pb-6"
+          id={SECTION_TABS.CURRENT_BALANCE}
+          ref={currentBalanceInView.ref}
+        >
+          <div className="pt-6 pb-2 flex justify-between items-center">
+            <div>
+              <p className="heading-03 text-primary">
+                Current balance <span className="text-secondary">*</span>
+              </p>
+              <p className="label-02 text-helper">
+                {`The total amount of money that you currently have. Please include the money you have from all your bank account and wallets (including saving money)`}
+              </p>
+            </div>
+          </div>
+          <div className="financial-information-field-group-input-wrapper">
+            <InputField
+              placeholder="0.00"
+              label="Amount (USD)"
+              name="current-balance"
+              id ="current-balance"
+              isFirst={currentBalance.validation.isFirst}
+              isValid={currentBalance.validation.isValid}
+              inputClassName="current-balance-input w-1/2"
+              defaultValue={currentBalance.value}
+              invalidType={currentBalance.validation.type}
+              value={currentBalance.value}
+              onChange={(e) => {
+                dispatch(updateCurrentBalance(e.target.value));
+              }}
+            />
+          </div>
+        </div>
+        <div className="flex items-center justify-between pb-2 pt-4">
           <p
             className="heading-03"
             id={SECTION_TABS.INCOME}
@@ -519,63 +514,9 @@ const FinancialInformation = memo(
           >
             Income
           </p>
-          <span
-            className={classNames({
-              "cursor-pointer": canDeleteIncome,
-              "cursor-not-allowed": !canDeleteIncome,
-            })}
-            onClick={() => {
-              if (!canDeleteIncome) return;
-              incomeDelete.isDelete && dispatch(closeIncomeDelete());
-              !incomeDelete.isDelete && dispatch(openIncomeDelete());
-            }}
-          >
-            {!incomeDelete.isDelete && (
-              <TrashCan
-                className={classNames({
-                  "fill-disabled": !canDeleteIncome,
-                })}
-              />
-            )}
-            {incomeDelete.isDelete && <Close />}
-          </span>
         </div>
-        {errorMessages && errorMessages.includes(FORM_FIELD.INCOME) && (
-          <p className="text-error label-01">
-            {errorMessages.join(" OR ")} is required.
-          </p>
-        )}
-        {isActionRequired && incomeDelete.isDelete && (
-          <p className="text-error label-01">
-            Delete the selected fields or click the Close icon to skip them.
-          </p>
-        )}
-        {canDeleteIncome && incomeDelete.isDelete && (
-          <div
-            className="flex items-center justify-between pb-2 pt-2 bg-background pl-4 pr-4"
-            style={{
-              marginLeft: "-1rem",
-              marginRight: "-1rem",
-            }}
-          >
-            <p className="body-01 text-primary">
-              {incomeDelete.fixedIncome.length +
-                incomeDelete.passiveIncome.length}{" "}
-              item selected
-            </p>
-            <div
-              className="flex items-center cursor-pointer"
-              onClick={() => dispatch(deleteIncome())}
-            >
-              <span className="body-compact-01 mr-2 text-secondary">
-                Delete
-              </span>
-              <TrashCan className="fill-secondary" />
-            </div>
-          </div>
-        )}
         <FinancialInformationFieldGroup
-          title="Fixed income"
+          title="Active income"
           name="fixedIncome"
           items={fixedIncomeItems}
           dispatch={dispatch}
@@ -584,13 +525,8 @@ const FinancialInformation = memo(
           updateField={updateField}
           addMultipleItems={openModal}
           max={INCOME_MAX_ITEMS}
-          isDeleteMode={incomeDelete.isDelete}
-          updateDelete={updateIncomeDelete}
-          selectAll={selectAllIncome}
-          isAll={incomeDelete.isAllFixedIncome}
-          isIndeterminate={incomeDelete.isIndeterminateFixedIncome}
-          isAdvanceAction={isAdvanceAction}
           selections={MULTIPLES_FIXED_INCOME_FIELDS}
+          focusIndex={focus.fixedIncome}
         />
         <FinancialInformationFieldGroup
           title="Passive income"
@@ -603,15 +539,10 @@ const FinancialInformation = memo(
           addMultipleItems={openModal}
           max={INCOME_MAX_ITEMS}
           isBorderBottom
-          isDeleteMode={incomeDelete.isDelete}
-          updateDelete={updateIncomeDelete}
-          selectAll={selectAllIncome}
-          isAll={incomeDelete.isAllPassiveIncome}
-          isIndeterminate={incomeDelete.isIndeterminatePassiveIncome}
-          isAdvanceAction={isAdvanceAction}
           selections={MULTIPLES_PASSIVE_INCOME_FIELDS}
+          focusIndex={focus.passiveIncome}
         />
-        <div className="flex items-center justify-between pb-2 pt-6">
+        <div className="flex items-center justify-between pb-2 pt-4">
           <p
             className="heading-03"
             id={SECTION_TABS.EXPENSE}
@@ -619,60 +550,7 @@ const FinancialInformation = memo(
           >
             Expenses
           </p>
-          <span
-            className={classNames({
-              "cursor-pointer": canDeleteExpense,
-              "cursor-not-allowed": !canDeleteExpense,
-            })}
-            onClick={() => {
-              if (!canDeleteExpense) return;
-              expenseDelete.isDelete && dispatch(closeExpenseDelete());
-              !expenseDelete.isDelete && dispatch(openExpenseDelete());
-            }}
-          >
-            {!expenseDelete.isDelete && (
-              <TrashCan
-                className={classNames({
-                  "fill-disabled": !canDeleteExpense,
-                })}
-              />
-            )}
-            {expenseDelete.isDelete && <Close />}
-          </span>
         </div>
-        {errorMessages && errorMessages.includes(FORM_FIELD.EXPENSES) && (
-          <p className="text-error label-01">
-            {errorMessages.join(" OR ")} is required.
-          </p>
-        )}
-        {isActionRequired && expenseDelete.isDelete && (
-          <p className="text-error label-01">
-            Delete the selected fields or click the Close icon to skip them.
-          </p>
-        )}
-        {canDeleteExpense && expenseDelete.isDelete && (
-          <div
-            className="flex items-center justify-between pb-2 pt-2 bg-background pl-4 pr-4"
-            style={{
-              marginLeft: "-1rem",
-              marginRight: "-1rem",
-            }}
-          >
-            <p className="body-01 text-primary">
-              {expenseDelete.expenses.length + expenseDelete.nonExpenses.length}{" "}
-              item selected
-            </p>
-            <div
-              className="flex items-center cursor-pointer"
-              onClick={() => dispatch(deleteExpense())}
-            >
-              <span className="body-compact-01 mr-2 text-secondary">
-                Delete
-              </span>
-              <TrashCan className="fill-secondary" />
-            </div>
-          </div>
-        )}
         <FinancialInformationFieldGroup
           title="Essential expenses"
           name="expenses"
@@ -683,13 +561,8 @@ const FinancialInformation = memo(
           addMultipleItems={openModal}
           type={ExpenseType.EXPENSE}
           max={EXPENSE_MAX_ITEMS}
-          isDeleteMode={expenseDelete.isDelete}
-          updateDelete={updateExpenseDelete}
-          selectAll={selectAllExpense}
-          isAll={expenseDelete.isAllExpenses}
-          isIndeterminate={expenseDelete.isIndeterminateExpenses}
-          isAdvanceAction={isAdvanceAction}
           selections={MULTIPLES_ESSENTIAL_EXPENSES_FIELDS}
+          focusIndex={focus.expenses}
         />
         <FinancialInformationFieldGroup
           title="Non-essential expenses"
@@ -702,230 +575,143 @@ const FinancialInformation = memo(
           addMultipleItems={openModal}
           max={EXPENSE_MAX_ITEMS}
           isBorderBottom
-          isDeleteMode={expenseDelete.isDelete}
-          updateDelete={updateExpenseDelete}
-          selectAll={selectAllExpense}
-          isAll={expenseDelete.isAllNonExpenses}
-          isIndeterminate={expenseDelete.isIndeterminateNonExpenses}
-          isAdvanceAction={isAdvanceAction}
           selections={MULTIPLES_NON_ESSENTIAL_EXPENSES_FIELDS}
+          focusIndex={focus.nonExpenses}
         />
-        <div className="border-subtitle-00 pb-6">
-          <div className="pt-6 pb-2 flex justify-between items-center">
-            <div>
-              <p
-                className="heading-03 text-primary"
-                id={SECTION_TABS.CURRENT_BALANCE}
-                ref={currentBalanceInView.ref}
-              >
-                Current balance
-              </p>
-              <p className="label-02 text-helper">
-                Current balance is the total amount of money in all your bank
-                accounts.
-              </p>
-              {errorMessages && errorMessages.includes(FORM_FIELD.BALANCE) && (
-                <p className="text-error label-01">
-                  {errorMessages.join(" OR ")} is required.
-                </p>
-              )}
-            </div>
-            {currentBalance && (
-              <span
-                className="cursor-pointer"
-                onClick={() => {
-                  if (!currentBalance) return;
-                  dispatch(removeCurrentBalance());
-                }}
-              >
-                <TrashCan />
-              </span>
-            )}
-          </div>
-          {currentBalance && (
-            <div className="financial-information-field-group-input-wrapper p-4 border border-solid border-subtle00">
-              <InputField
-                placeholder="0.00"
-                label="Amount (USD)"
-                name="current-balance"
-                isFirst={currentBalance.validation.isFirst}
-                isValid={currentBalance.validation.isValid}
-                inputClassName="current-balance-input w-1/2"
-                defaultValue={
-                  +currentBalance.value === -1 ? "" : currentBalance.value
-                }
-                invalidType={currentBalance.validation.type}
-                onChange={(e) => {
-                  dispatch(updateCurrentBalance(e.target.value));
-                }}
-              />
-            </div>
-          )}
-          {!currentBalance && (
-            <div className="flex p-4 items-center">
-              <p
-                className="text-focus body-compact-01 pr-4 cursor-pointer"
-                onClick={() => {
-                  dispatch(addCurrentBalance());
-                }}
-              >
-                Add
-              </p>
-              <p
-                className="text-helper helper-text-01"
-                style={{ lineHeight: "17px" }}
-              >
-                (1 fields)
-              </p>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center justify-between pb-2 pt-6">
+        <div className="flex items-center justify-between pb-2 pt-4">
+          <div>
           <p className="heading-03" id={SECTION_TABS.DEBT} ref={debtInView.ref}>
             Debt
           </p>
-          {debts.length > 0 && (
-            <span
-              className="cursor-pointer"
-              onClick={() => {
-                debtDelete.isDelete && dispatch(closeDebt());
-                !debtDelete.isDelete && dispatch(openDebt());
-              }}
-            >
-              {!debtDelete.isDelete && <TrashCan />}
-              {debtDelete.isDelete && <Close />}
-            </span>
-          )}
-        </div>
-        {isActionRequired && debtDelete.isDelete && (
-          <p className="text-error label-01">
-            Delete the selected fields or click the Close icon to skip them.
-          </p>
-        )}
-        {debtDelete.isDelete && (
-          <div
-            className="flex items-center justify-between pb-2 pt-2 bg-background pl-4 pr-4"
-            style={{
-              marginLeft: "-1rem",
-              marginRight: "-1rem",
-            }}
-          >
-            <p className="body-01 text-primary">
-              {debtDelete.items.length} item selected
-            </p>
-            <div
-              className="flex items-center cursor-pointer"
-              onClick={() => dispatch(deleteDebts())}
-            >
-              <span className="body-compact-01 mr-2 text-secondary">
-                Delete
-              </span>
-              <TrashCan className="fill-secondary" />
-            </div>
+          <p className="label-02 text-helper">
+                {`Debt is those events that lead you down the path of financial hardship! Note it down here to devise a master plan to help you break free from its burden!`}
+              </p>
           </div>
-        )}
+        </div>
         {debts.length > 0 && (
           <div className="py-2">
-            {debts.map((debt, index) => (
-              <div key={index}>
-                <div
-                  className="financial-information-field-group-input-wrapper p-4 border border-solid border-subtle00"
-                  style={{ borderTop: index > 0 ? "none" : undefined }}
-                >
+            {debts.map((debt, index) => {
+              const debtCloseId = `checkbox-item-debts-${index}`;
+              return (
+                <div key={index}>
                   <div
-                    className={classNames("debt-input-wrapper", {
-                      "is-delete-mode": debtDelete.isDelete,
-                    })}
+                    className="financial-information-field-group-input-wrapper p-4 border border-solid border-subtle00"
+                    style={{ borderTop: index > 0 ? "none" : undefined }}
                   >
-                    {debtDelete.isDelete && (
+                    <div className={classNames("debt-input-wrapper")}>
+                      {debtFields.map((val: DebtType, jdex) => {
+                        const value = debt[val];
+                        const validation: ValidationItem = debt.validation[val];
+                        return (
+                          <InputField
+                            key={`debt-${index}-${val}-${jdex}`}
+                            placeholder={val !== "name" ? "0.00" : "Input name"}
+                            label={debtLabel[val]}
+                            name={val}
+                            id={"debt-" + index +"-"+ val}
+                            isFirst={validation.isFirst}
+                            isValid={validation.isValid}
+                            inputClassName="debt-input"
+                            defaultValue={value}
+                            value={value}
+                            invalidType={validation.type}
+                            onFocus={() => {
+                              const ele = document.getElementById(debtCloseId);
+                              if (ele) {
+                                (ele as any).checked = true;
+                              }
+                              dispatch(
+                                setFocus({
+                                  isFocus: true,
+                                  field: "debts",
+                                  index: index,
+                                })
+                              );
+                            }}
+                            onBlur={() => {
+                              const ele = document.getElementById(debtCloseId);
+                              if (ele) {
+                                (ele as any).checked = false;
+                              }
+                              setTimeout(() => {
+                                dispatch(setDeleteId(undefined));
+                              },100);
+                              dispatch(
+                                setFocus({
+                                  isFocus: false,
+                                  field: "debts",
+                                  index: index,
+                                })
+                              );
+                            }}
+                            onChange={(e) => {
+                              dispatch(
+                                updateDebt({
+                                  name: val,
+                                  value: e.target.value,
+                                  index: index,
+                                })
+                              );
+                            }}
+                          />
+                        );
+                      })}
                       <div
-                        style={{ gridRow: "1 / span 2", marginTop: "-0.25rem" }}
+                        className="close-wrapper flex"
+                        key={`debt-${index}-close-${debtFields.length}`}
+                        style={{
+                          gridColumn: 3,
+                          gridRow: "1/ span 2",
+                          marginLeft: "-16px",
+                        }}
+                        onClick={(e) =>
+                          dispatch(deleteItem({ index, field: "debts" }))
+                        }
                       >
-                        <Checkbox
-                          labelText=""
-                          id={`debt-${index}`}
-                          onChange={(
-                            _: React.ChangeEvent<HTMLInputElement>,
-                            data: {
-                              checked: boolean;
-                              id: string;
-                            }
-                          ) => {
-                            dispatch(
-                              updateDebtDelete({
-                                index: index,
-                                checked: data.checked,
-                              })
-                            );
+                        <input
+                          className="checkbox-item"
+                          id={debtCloseId}
+                          hidden
+                          type="checkbox"
+                        />
+                        <Close
+                          className="cursor-pointer"
+                          style={{ marginBottom: false ? undefined : "16px" }}
+                          onClick={(e) => {
+                            dispatch(deleteItem({ index, field: "debts" }));
                           }}
-                          checked={debt.isDelete}
                         />
                       </div>
-                    )}
-                    {debtFields.map((val: DebtType, jdex) => {
-                      const value = debt[val];
-                      const validation: ValidationItem = debt.validation[val];
-                      return (
-                        <InputField
-                          key={`debt-${index}-${val}-${jdex}`}
-                          placeholder={val !== 'name' ? "0.00": 'Input name'}
-                          label={debtLabel[val]}
-                          name={val}
-                          isFirst={validation.isFirst}
-                          isValid={validation.isValid}
-                          inputClassName="debt-input"
-                          defaultValue={value}
-                          invalidType={validation.type}
-                          onChange={(e) => {
-                            dispatch(
-                              updateDebt({
-                                name: val,
-                                value: e.target.value,
-                                index: index,
-                              })
-                            );
-                          }}
-                        />
-                      );
-                    })}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
         <div className="flex p-4 items-center mb-8">
           <p
-            className="text-focus body-compact-01 pr-4 cursor-pointer"
+            className={classNames("body-compact-01 mr-8", {
+              "text-focus cursor-pointer hover:underline": debts.length < 5,
+              "text-disabled": debts.length >= 5,
+            })}
             onClick={() => {
-              dispatch(addDebt());
+              debts.length < 5 && dispatch(addDebt());
             }}
           >
-            Add
+            Add custom
           </p>
           <p
             className="text-helper helper-text-01"
             style={{ lineHeight: "17px" }}
           >
-            ({debts.length}/{5} fields)
+            ({5 - debts.length}/{5} fields left)
           </p>
         </div>
         <p className="text-helper label-02 pb-2">
           Your input can be viewed and edited after submitting the form.
         </p>
-        {isActionRequired && (
-          <InlineNotification
-            kind="error"
-            title="Action required to complete."
-            onClose={() => {
-              dispatch(closeErrorMessage());
-              return true;
-            }}
-            subtitle={`Delete or skip selected fields before continue`}
-            className="mb-2 error-label"
-          />
-        )}
-        {!isActionRequired && errorMessages && (
+        {errorMessages && (
           <InlineNotification
             kind="error"
             title="Missing required fields."
@@ -943,9 +729,9 @@ const FinancialInformation = memo(
             renderIcon={ArrowRight}
             style={{ maxWidth: "unset", height: "fit-content" }}
             onClick={() => dispatch(submitForm())}
-            disabled ={isSubmit}
+            disabled={isSubmit}
           >
-            Save and continue
+            View financial report
           </PrimaryButton>
         </div>
       </form>

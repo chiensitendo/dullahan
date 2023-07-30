@@ -5,6 +5,7 @@ import createSagaMiddleware from "@redux-saga/core";
 import formSaga from './apiSaga';
 import notiSlice from './notiSlice';
 import customerSlice from './customerSlice';
+import logger from 'redux-logger';
 
 const sagaMiddleware = createSagaMiddleware();
 

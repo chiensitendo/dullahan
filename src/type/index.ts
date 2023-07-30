@@ -18,7 +18,8 @@ export enum ExpenseType {
 export enum VALIDATION_TYPE {
     REQUIRED = 1,
     INVALID = 2,
-    LARGER_ZERO = 3
+    LARGER_ZERO = 3,
+    POSITIVE = 4
 }
 
 export enum BUDGET_STATUS  {
@@ -28,13 +29,13 @@ export enum BUDGET_STATUS  {
 }
 
 export interface CustomerIncomeCreationDataRequest {
-    amount: number;
+    amount?: number;
     name: string;
     type: IncomeType;
 }
 
 export interface CustomerExpenseCreationDataRequest {
-    amount: number;
+    amount?: number;
     name: string;
     type: ExpenseType;
 }

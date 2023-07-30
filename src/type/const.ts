@@ -5,21 +5,26 @@ export const INCOME_MAX_ITEMS = 5;
 export const EXPENSE_MAX_ITEMS = 15;
 
 export const MULTIPLES_FIXED_INCOME_FIELDS: Choice[] = [
-    {id: 1, name: "Full-Time job earning", checked: false},
-    {id: 2, name: "Part-time job earning", checked: false},
+    {id: 1, name: "Full-time Salary", checked: false},
+    {id: 2, name: "Freelance Salary", checked: false},
+    {id: 3, name: "Own Business", checked: false},
+    {id: 4, name: "Shop Revenue", checked: false},
 ];
 
 export const MULTIPLES_PASSIVE_INCOME_FIELDS: Choice[] = [
-    {id: 1, name: "Passive Source 1", checked: false},
-    {id: 2, name: "Passive Source 2", checked: false},
+    {id: 1, name: "Advertising Commission", checked: false},
+    {id: 2, name: "Property Rent", checked: false},
+    {id: 3, name: "Car Rent", checked: false},
+    {id: 4, name: "Social Media Activities", checked: false},
+    {id: 5, name: "Dividend Investment", checked: false},
 ];
 
 export const MULTIPLES_ESSENTIAL_EXPENSES_FIELDS: Choice[] = [
     {id: 1, name: "Housing (Rent)", checked: false},
     {id: 2, name: "Transportation (Fuel)", checked: false},
+    {id: 5, name: "Food (Groceries, Household supply)", checked: false},
     {id: 3, name: "Utilities (Electricities, Water, Gas)", checked: false},
     {id: 4, name: "Special Health Treatment (Sickness, essential pill)", checked: false},
-    {id: 5, name: "Groceries (Household supply)", checked: false},
     {id: 6, name: "Communication (Phone bills, internet services)", checked: false},
     {id: 7, name: "Essential Personal Care (Hair Cut, Hygiene product)", checked: false},
     {id: 8, name: "Education", checked: false},
@@ -40,6 +45,26 @@ export const MULTIPLES_NON_ESSENTIAL_EXPENSES_FIELDS: Choice[] = [
     {id: 20, name: "Premium Services (Butler, personal trainer)", checked: false},
 ];
 
+export const isFixedActiveIncome = (name: string) => {
+    if (!name) return false;
+    return MULTIPLES_FIXED_INCOME_FIELDS.findIndex(item => item.name === name) >= 0;
+}
+
+export const isFixedPassiveIncome = (name: string) => {
+    if (!name) return false;
+    return MULTIPLES_PASSIVE_INCOME_FIELDS.findIndex(item => item.name === name) >= 0;
+}
+
+export const isFixedExpenseIncome = (name: string) => {
+    if (!name) return false;
+    return MULTIPLES_ESSENTIAL_EXPENSES_FIELDS.findIndex(item => item.name === name) >= 0;
+}
+
+export const isFixedNonExpenseIncome = (name: string) => {
+    if (!name) return false;
+    return MULTIPLES_NON_ESSENTIAL_EXPENSES_FIELDS.findIndex(item => item.name === name) >= 0;
+}
+
 export const getValidationMessage = (type: VALIDATION_TYPE | undefined, name: string | undefined) => {
     let message = "";
     switch (type) {
@@ -48,6 +73,9 @@ export const getValidationMessage = (type: VALIDATION_TYPE | undefined, name: st
             break;
         case VALIDATION_TYPE.LARGER_ZERO:
             message = "must be larger than 0";
+            break;
+        case VALIDATION_TYPE.POSITIVE:
+            message = "must be a non-negative number";
             break;
         default:
             message = "is required";
@@ -66,6 +94,20 @@ export const BUDGET_STATUS_TEXTS = {
     [BUDGET_STATUS.BAD]: "Budget deficit",
     [BUDGET_STATUS.WARNING]: "Paycheck to paycheck",
     [BUDGET_STATUS.GOOD]: "Good financial flexibility",
+}
+
+interface TooltipProps {
+    fixedIncome: string;
+    passiveIncome: string;
+    expenses: string;
+    nonExpenses: string;
+}
+
+export const tooltipText: TooltipProps = {
+    fixedIncome: 'Active income comes through direct labor or service such as your day job, your side hustle, or even the cash you earn from your music show! ',
+    passiveIncome: 'Passive income comes through minimal labor source like your dividend investments, earning from youtube channel, or rental income!',
+    expenses: '"Essential Expenses," are the essential payment for you or your family. They include those everyday necessities like rent, groceries, fuels or electrical bills.',
+    nonExpenses: 'Those expenses that exist only for pleasure purpose such as the monthly pay for cup of coffee or weekend getaway!',
 }
 
 export const FORM_LINK = "/form";

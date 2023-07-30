@@ -4,8 +4,19 @@ const Tab = (props: {content: TabProps}) => {
     const {content} = props;
     return <div className="custom_tab py-2 relative hover:cursor-pointer" onClick={() => {
         const element = document.getElementById(content.id);
-        if (element !== null) {
-          element.scrollIntoView();
+        const form = document.getElementById('dullahan-form');
+        if (element) {
+          if (form) {
+            const {top, left} = element.getBoundingClientRect();
+            let offsetPosition = top + window.scrollY - (68+ 64 + 48);
+            
+            setTimeout(() => {
+                window.scrollTo({
+                    top: offsetPosition,
+                    left
+                })
+            },0);
+          };
         }
     }}>
         <div className="absolute left-0 top-0 h-full" 

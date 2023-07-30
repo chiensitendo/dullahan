@@ -12,16 +12,13 @@ import { NextPage } from "next";
 import { StackedBarChart } from "@carbon/charts-react";
 import {
   BUDGET_STATUS,
-  CustomerExpenseCreationData,
-  CustomerIncomeCreationData,
-  Debt,
   ExpenseType,
   IncomeType,
   UserSeason,
 } from "@/type";
-import { useEffect, useMemo, useState } from "react";
-import { BUDGET_NOTES, BUDGET_STATUS_TEXTS } from "@/type/const";
-import { Accordion, AccordionItem, Tag } from "carbon-components-react";
+import { useMemo, useState } from "react";
+import { BUDGET_STATUS_TEXTS } from "@/type/const";
+import {  Tag } from "carbon-components-react";
 import ProBar from "@/components/result/ProBar";
 import DLineBar from "@/components/result/DLineBar";
 import DebtTimeline from "@/components/result/DebtTimeline";
@@ -242,7 +239,7 @@ const BudgetStatus = ({
   );
 };
 
-function numberWithCommas(x: number) {
+export function numberWithCommas(x: number) {
   if (!x) return "0";
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

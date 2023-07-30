@@ -41,6 +41,15 @@ Promise<AxiosResponse<CustomerIncomeCreationData, any>> => {
     });
 }
 
+export const deleteCustomerIncomes = (auth: AuthData, id: number | undefined): 
+Promise<AxiosResponse<CustomerIncomeCreationData, any>> => {
+    return publicAxios.delete<any>(SERVER_URL + "/customer/incomes/" + id, {
+        headers: {
+            "Authorization": generateAuthToken(auth)
+        }
+    });
+}
+
 export const createCustomerExpense = (auth: AuthData, request: CustomerExpenseCreationDataRequest): 
 Promise<AxiosResponse<CustomerExpenseCreationData, any>> => {
     return publicAxios.post<any>(SERVER_URL + "/customer/expenses", request, {
@@ -59,6 +68,15 @@ Promise<AxiosResponse<CustomerExpenseCreationData, any>> => {
     });
 }
 
+export const deleteCustomerExpense = (auth: AuthData, id: number | undefined): 
+Promise<AxiosResponse<CustomerExpenseCreationData, any>> => {
+    return publicAxios.delete<any>(SERVER_URL + "/customer/expenses/" + id, {
+        headers: {
+            "Authorization": generateAuthToken(auth)
+        }
+    });
+}
+
 export const createCustomerDebt = (auth: AuthData, request: CustomerDebtCreationData): 
 Promise<AxiosResponse<Debt, any>> => {
     return publicAxios.post<any>(SERVER_URL + "/customer/debts", request, {
@@ -71,6 +89,15 @@ Promise<AxiosResponse<Debt, any>> => {
 export const editCustomerDebt = (auth: AuthData, request: CustomerDebtCreationData, id: number | undefined): 
 Promise<AxiosResponse<Debt, any>> => {
     return publicAxios.patch<any>(SERVER_URL + "/customer/debts/" + id, request, {
+        headers: {
+            "Authorization": generateAuthToken(auth)
+        }
+    });
+}
+
+export const deleteCustomerDebt = (auth: AuthData, id: number | undefined): 
+Promise<AxiosResponse<Debt, any>> => {
+    return publicAxios.delete<any>(SERVER_URL + "/customer/debts/" + id, {
         headers: {
             "Authorization": generateAuthToken(auth)
         }

@@ -4,8 +4,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 
 
 export interface TabState {
-  activeTab: string,
-  isAdvanceAction: boolean
+  activeTab: string
 }
 
 export enum SECTION_TABS {
@@ -16,8 +15,7 @@ export enum SECTION_TABS {
 }
 
 const initialState: TabState = {
-  activeTab: SECTION_TABS.INCOME,
-  isAdvanceAction: true
+  activeTab: SECTION_TABS.CURRENT_BALANCE
 }
 
 export const tabSlice = createSlice({
@@ -30,14 +28,11 @@ export const tabSlice = createSlice({
             activeTab: action.payload
         }
     },
-    setIsAdvanceAction: (state, action: PayloadAction<boolean>) => {
-      state.isAdvanceAction = action.payload;
-    }
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { setActiveTab, setIsAdvanceAction } =
+export const { setActiveTab } =
 tabSlice.actions;
 
 export default tabSlice.reducer;

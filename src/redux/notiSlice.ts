@@ -22,7 +22,8 @@ export interface NotificationState {
   shouldReturnHome: boolean,
   shouldTryIt: boolean,
   shouldTrySession?: AuthData,
-  isFromHome: boolean
+  isFromHome: boolean,
+  isWarning: boolean
 }
 
 const initialState: NotificationState = {
@@ -33,7 +34,8 @@ const initialState: NotificationState = {
     },
     shouldReturnHome: false,
     shouldTryIt: false,
-    isFromHome: false
+    isFromHome: false,
+    isWarning: false
 }
 
 export const notiSlice = createSlice({
@@ -91,6 +93,16 @@ export const notiSlice = createSlice({
         state.shouldTryIt = false;
         state.shouldTrySession = undefined;
         state.isFromHome = true;
+    },
+    triggerWarning: (state) => {
+        state.isWarning = true;
+    },
+    forwardToEnterCode: (state) => {
+        state.codeModal.isOpen = true;
+        state.isWarning = false;
+    },
+    goBackToForm: (state) => {
+        state.isWarning = false;
     }
   },
 });
@@ -99,7 +111,7 @@ export const notiSlice = createSlice({
 export const { setIsLoading, setNotification, triggerEnterCode, submitCode, submitCodeSuccess, 
     submitCodeFailure, resetEnterCode, setShouldReturnHome, updateCode, startNewSesson, 
     startNewSessonSuccess, 
-    startNewSessonFailure, clearShouldTryIt } =
+    startNewSessonFailure, clearShouldTryIt, triggerWarning, forwardToEnterCode , goBackToForm } =
 notiSlice.actions;
 
 export default notiSlice.reducer;

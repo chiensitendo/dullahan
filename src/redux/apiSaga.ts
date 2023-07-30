@@ -3,6 +3,9 @@ import {
   createCustomerDebt,
   createCustomerExpense,
   createCustomerIncomes,
+  deleteCustomerDebt,
+  deleteCustomerExpense,
+  deleteCustomerIncomes,
   editCustomerDebt,
   editCustomerExpense,
   editCustomerIncomes,
@@ -31,40 +34,33 @@ import {
 import { setIsLoading, setNotification, startNewSessonFailure, startNewSessonSuccess, submitCodeFailure, submitCodeSuccess } from "./notiSlice";
 import { getCustomerMeDataFailure, getCustomerMeDataSuccess, getLineChartDataSuccess, getTimelineChartDataFailure, getTimelineChartDataSuccess } from "./customerSlice";
 
-// export function* startNewSeasonSaga() {
-//     try {
-//         let result: Response = yield startNewSeason();
-//         yield put(loginSuccess(result));
-//         setLoading(false);
-//     } catch (e) {
-//         yield put(loginFailed());
-//         yield put(showErrorNotification(e));
-//     }
-// }
 
 class BoundaryItem<T> {
   id?: number;
   item!: T;
 }
 
+const getAmount = (amount: string) => {
+  if (!amount || isNaN(+amount)) return 0;
+  return +amount;
+}
+
 function convertToIncomeResponse(form: FormState): {
   isValid: boolean;
   requests: BoundaryItem<CustomerIncomeCreationDataRequest>[];
 } {
-  let isValid = false;
+  let isValid = true;
   const items: BoundaryItem<CustomerIncomeCreationDataRequest>[] = [];
   if (
     form.fixedIncome &&
-    form.passiveIncome &&
-    form.fixedIncome.length > 0 &&
-    form.fixedIncome.length > 0
+    form.passiveIncome
   ) {
     form.fixedIncome.forEach((income) => {
-      if (+income.amount > 0 && income.name) {
+      if ( income.name) {
         items.push({
           id: income.id,
           item: {
-            amount: +income.amount,
+            amount: getAmount(income.amount),
             name: income.name,
             type: income.type,
           },
@@ -72,18 +68,18 @@ function convertToIncomeResponse(form: FormState): {
       }
     });
     form.passiveIncome.forEach((income) => {
-      if (+income.amount > 0 && income.name) {
+      if (income.name) {
         items.push({
           id: income.id,
           item: {
-            amount: +income.amount,
+            amount: getAmount(income.amount),
             name: income.name,
             type: income.type,
           },
         });
       }
     });
-    isValid = items.length > 0;
+    isValid = items.length >= 0;
   }
   return { isValid: isValid, requests: items };
 }
@@ -92,16 +88,15 @@ function convertToExpensesResponse(form: FormState): {
   isValid: boolean;
   requests: BoundaryItem<CustomerExpenseCreationDataRequest>[];
 } {
-  let isValid = false;
+  let isValid = true;
   const items: BoundaryItem<CustomerExpenseCreationDataRequest>[] = [];
   if (form.expenses && form.expenses.length > 0) {
     form.expenses.forEach((expense) => {
-      if (+expense.amount > 0 && expense.name) {
-        isValid = true;
+      if (expense.name) {
         items.push({
           id: expense.id,
           item: {
-            amount: +expense.amount,
+            amount: getAmount(expense.amount),
             name: expense.name,
             type: expense.type,
           },
@@ -110,11 +105,11 @@ function convertToExpensesResponse(form: FormState): {
     });
     if (form.nonExpenses) {
       form.nonExpenses.forEach((expense) => {
-        if (+expense.amount > 0 && expense.name) {
+        if (expense.name) {
           items.push({
             id: expense.id,
             item: {
-              amount: +expense.amount,
+              amount: getAmount(expense.amount),
               name: expense.name,
               type: expense.type,
             },
@@ -135,7 +130,7 @@ function convertToDebt(form: FormState): {
   if (form.debts) {
     form.debts.forEach((debt) => {
       if (
-        +debt.annual > 0 &&
+        +debt.annual >= 0 &&
         +debt.payment > 0 &&
         debt.name &&
         +debt.amount > 0
@@ -214,6 +209,21 @@ export function* sendFormSaga(
             return editCustomerDebt(auth, request.item, request.id);
           });
       }
+      yield form.deleteItems.fixedIncome.forEach((id) => {
+        return deleteCustomerIncomes(auth, id);
+      });
+      yield form.deleteItems.passiveIncome.forEach((id) => {
+        return deleteCustomerIncomes(auth, id);
+      });
+      yield form.deleteItems.expenses.forEach((id) => {
+        return deleteCustomerExpense(auth, id);
+      });
+      yield form.deleteItems.nonExpenses.forEach((id) => {
+        return deleteCustomerExpense(auth, id);
+      });
+      yield form.deleteItems.debts.forEach((id) => {
+        return deleteCustomerDebt(auth, id);
+      });
       let result: Response = yield getCustomerMe(auth);
 
       yield put(sendFormComplete(result));
