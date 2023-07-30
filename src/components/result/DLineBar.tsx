@@ -7,22 +7,30 @@ const DLineBar = ({data}: {data: LineCharData[]}) => {
       return data.map(item => ({
         group: item.group,
         key: item.key,
-        value: item.group === 'Assets' ? item.asset : item.debt
+        value: item.group === 'Assets' ? item.asset : item.debt,
+
       }))
     },[data]);
     return <LineChart
-    data={chartData}
+    data={data}
     options={{
         title: 'Chart title',
         axes: {
             bottom: {
+                title: 'Months',
                 mapsTo: "key",
                 scaleType: "labels" as any
             },
             left: {
-                mapsTo: "value",
-                scaleType: "linear" as any
-              }
+                title: 'Asset (USD)',
+                mapsTo: "asset",
+                // scaleType: "linear" as any
+            },
+            right: {
+              title: 'Debt (USD)',
+              mapsTo: "debt",
+              // scaleType: "linear" as any
+            }
         },
         height: "400px"
     }}
