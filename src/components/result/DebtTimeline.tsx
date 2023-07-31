@@ -1,11 +1,6 @@
 import { Timeline } from "@/type";
 import React, { useMemo } from "react";
 
-interface TimeLineItem {
-  time: number,
-  timeline: TimeLineItem[]
-}
-
 const DebtTimeline = ({ items }: { items: Timeline[] }) => {
   const TimelineYear = ({ isTop, year }: { isTop: boolean; year: string }) => {
     return (
@@ -94,43 +89,11 @@ const DebtTimeline = ({ items }: { items: Timeline[] }) => {
       </React.Fragment>
     );
   };
-
   const list = useMemo(() => {
     const l: any[] = [];
     let isLeft = true;
     let currentYear = "";
-    const filteredItems= items.filter(
-      (item) => !isNaN(new Date(item.date).getDate())
-    );
-    const processItems = {} as any;
-    filteredItems.forEach(item => {
-      const [month, year] = item.date.split(" ");
-      if (year !== "") {
-        if (!processItems[year]) {
-          processItems[year] = [item];
-        } else {
-          processItems[year].push(item);
-        }
-      }
-    });
-    const years = Object.keys(processItems);
-    years.sort();
-    
-    const finalItems: any[] = [];
-    years.forEach(year => {
-      const l = processItems[year] as Timeline[];
-      l.sort((obj1, obj2) => {
-        const [month1, year1] = obj1.date.split(" ");
-        const [month2, year2] = obj2.date.split(" ");
-        if (month1 === month2) return 0;
-        else if (month1 > month2) return -1;
-        else return 1;
-      });
-      l.forEach(item => {
-        finalItems.push(item);
-      })
-    });
-    finalItems
+    items
       .forEach((item, index) => {
         const [month, year] = item.date.split(" ");
         if (currentYear !== year) {
@@ -148,7 +111,7 @@ const DebtTimeline = ({ items }: { items: Timeline[] }) => {
               year={year}
               desc={item.description}
               event={item.event}
-              isFinal={index === finalItems.length - 1}
+              isFinal={index === items.length - 1}
             />
           );
         } else {
@@ -160,7 +123,7 @@ const DebtTimeline = ({ items }: { items: Timeline[] }) => {
               year={year}
               desc={item.description}
               event={item.event}
-              isFinal={index === finalItems.length - 1}
+              isFinal={index === items.length - 1}
             />
           );
         }
@@ -176,10 +139,10 @@ const DebtTimeline = ({ items }: { items: Timeline[] }) => {
       >
         <div className="timeline-headling">
           <p className="text-focus text-[20px] font-semibold leading-7">
-            Highlight timeline
+          Financial Timeline
           </p>
           <p className="heading-06-05 text-white pb-4 pt-6">
-            Achieve your financial goals with financial knowledge
+            {`The important milestones if you just keep up the performance`}
           </p>
           <img className="w-full max-w-full" src="/images/timeline.svg" />
         </div>

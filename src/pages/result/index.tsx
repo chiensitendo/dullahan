@@ -39,7 +39,7 @@ const BarChar = ({ item }: { item: UserSeason }) => {
         list.push({
           group:
             income.type === IncomeType.FIXED_INCOME
-              ? "Fixed income"
+              ? "Active income"
               : "Passive income",
           key: "Income",
           value: income.amount,
@@ -90,7 +90,7 @@ const BarChar = ({ item }: { item: UserSeason }) => {
         },
         color: {
           scale: {
-            "Fixed income": "#0E6027",
+            "Active income": "#0E6027",
             "Passive income": "#74E792",
             "Essential expenses": "#6929C4",
             "Non-ssential expenses": "#DCC7FF",
@@ -105,7 +105,7 @@ const BarChar = ({ item }: { item: UserSeason }) => {
 const DotItem = ({ text }: { text: string }) => {
   return (
     <div className="flex items-center h-fit">
-      <DotMark className="fill-primary" width={24} height={24} />
+      <DotMark className="fill-primary min-w-[24px]" width={24} height={24} />
       <p
         className="text-primary ml-2.5"
         style={{
@@ -223,7 +223,7 @@ const BudgetStatus = ({
     <div>
       <div className="pt-14 px-4 pb-6">
         <p className="result-budget-status-prefix text-primary">
-          Your budget status is_
+        Your Financial Status is_
         </p>
         <p className={`result-budget-status ${textColor}`}>
           {statusText ? statusText : BUDGET_STATUS_TEXTS[status]}
@@ -325,7 +325,7 @@ const ResultPage: NextPage = () => {
       </div>
       <div className="flex items-center justify-center bg-background">
         <div className="py-6 px-8 h-container h-container-no-padding result-headline">
-          <p className="heading-05">Financial Situation</p>
+          <p className="heading-05">Financial Performance Analysis</p>
         </div>
       </div>
       {item && (
@@ -335,14 +335,13 @@ const ResultPage: NextPage = () => {
               <div className="flex items-start flex-col">
                 <DotItem text="Overview" />
                 <p className="text-primary result-text mt-6 mb-2">
-                  Monthly net flow performance
+                Monthly Financial Performance
                 </p>
                 <p className="heading-06 text-black mb-2">
                   ${numberWithCommas(item.monthly_net_flow)}
                 </p>
                 <p className="helper-text-02 text-helper">
-                  Net flow performance is calculated as Total income minus Total
-                  expenses and Debt (if any).
+                Total Income - Total Expense + Debt Payment
                 </p>
               </div>
             </div>
@@ -379,7 +378,7 @@ const ResultPage: NextPage = () => {
                             Total expenses
                           </span>
                           <p className="heading-04 text-primary mb-2">
-                            ${numberWithCommas(item.total_all_expense)}
+                            ${numberWithCommas(item.total_all_expense + item.total_monthly_payment_debt)}
                           </p>
                           <p className="helper-text-02 text-helper">
                             Including debt paid off each month
@@ -433,7 +432,7 @@ const ResultPage: NextPage = () => {
       )}
       <div className="flex items-center justify-center bg-background">
         <div className="py-6 px-8 h-container h-container-no-padding result-headline">
-          <p className="heading-05">Financial target</p>
+          <p className="heading-05">Financial Milestone Recommendation</p>
         </div>
       </div>
       {item && (
@@ -450,7 +449,7 @@ const ResultPage: NextPage = () => {
                   <div className="result-target-col cds--col-max-16 cds--col-xlg-16 cds--col-lg-16 cds--col-md-8 cds--col-sm-4">
                     <div className="pr-4">
                       <p className="py-6 med:px-4 px-0 result-budget-cup">
-                        Budget cup
+                      Budget Cup Recommendation
                       </p>
                     </div>
                   </div>
@@ -466,10 +465,7 @@ const ResultPage: NextPage = () => {
                   <div className="result-target-col cds--col-max-8 cds--col-xlg-8 cds--col-lg-8 cds--col-md-4 cds--col-sm-2">
                     <div className="pl-4 pb-6 flex flex-col justify-between h-full">
                       <p className="mb-14">
-                        Based on your Current Balance, The report will show your
-                        current saving target, how much you have already saved,
-                        and how much you need to save based on your current
-                        spending.
+                        {`Budget Cup is designed to give you a general recommendation on how you should set your financial milestones. Using your current money balance and current expenses, the report will show where you currently are in the journey`}
                       </p>
                       <div className="result-border-top pt-4">
                         <p className="text-primary result-text">
@@ -654,12 +650,12 @@ const ResultPage: NextPage = () => {
         <div className="cds--row flex justify-center">
           <div className="result-left pb-6 cds--col-max-4 cds--col-xlg-4 cds--col-lg-4 cds--col-md-8 cds--col-sm-4">
             <div className="flex items-start flex-col">
-              <DotItem text="Total asset over time" />
+              <DotItem text="How much you will have in the next 5 years" />
             </div>
           </div>
           <div className="result-right cds--col-max-12 cds--col-xlg-12 cds--col-lg-12 cds--col-md-8 cds--col-sm-4">
             <div className="p-4 result-border">
-              <DLineBar data={lineChart?.data ? lineChart.data : []} />
+              <DLineBar data={lineChart?.data ? lineChart.data : []} debts={lineChart?.debts ? lineChart.debts: []} />
             </div>
           </div>
         </div>

@@ -132,8 +132,20 @@ export interface LineCharData {
     key: string
 }
 
+export interface LineChartDebtData {
+    annual_interest: number,
+    id: number,
+    monthly_payment: number,
+    name: string,
+    payment_deadline?: string,
+    remaining_amount: number,
+    type: string,
+    session_id?: number,
+    forecast_paid_off_date: string
+}
 export interface LineChartDataResponse {
-    data: LineCharData[]
+    data: LineCharData[];
+    debts: LineChartDebtData[];
 }
 
 export interface Timeline {

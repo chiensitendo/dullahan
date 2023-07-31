@@ -200,6 +200,9 @@
     }
     .cds--text-input:disabled {
         border-bottom: 1px solid #E0E0E0;
+        color: #161616;
+        -webkit-text-fill-color: unset;
+        cursor: default;
     }
 }
 

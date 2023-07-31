@@ -99,7 +99,7 @@ const HomePage: NextPage = (props) => {
     return <div className="h-full w-full bg-background">
         <div className="sticky top-16 left-0 w-full flex items-center justify-center z-10">
             <div className="h-container h-container-no-padding bg-white py-5 px-8">
-                <p className="heading-03">Personal financial information</p>
+                <p className="heading-03">Input your current financial information</p>
             </div>
         </div>
         <div className="cds--grid h-container py-8">

@@ -1,18 +1,13 @@
-import { LineCharData } from "@/type";
-import { LineChart } from "@carbon/charts-react";
+import { LineCharData, LineChartDebtData } from "@/type";
+import { LineChart, ComboChart } from "@carbon/charts-react";
 import { useMemo } from "react";
 
-const DLineBar = ({data}: {data: LineCharData[]}) => {
-    const chartData = useMemo(() => {
-      return data.map(item => ({
-        group: item.group,
-        key: item.key,
-        value: item.group === 'Assets' ? item.asset : item.debt,
-
-      }))
-    },[data]);
+const DLineBar = ({data, debts}: {data: LineCharData[], debts: LineChartDebtData[]}) => {
+    const correspondingDatasets = useMemo(() => {
+        return debts.map(debt => debt.name);
+    },[debts]);
     return <LineChart
-    data={data}
+    data={[...data]}
     options={{
         title: '',
         axes: {
@@ -39,3 +34,55 @@ const DLineBar = ({data}: {data: LineCharData[]}) => {
 
 
 export default DLineBar;
+
+
+const DComboLineBar = ({data, debts}: {data: LineCharData[], debts: LineChartDebtData[]}) => {
+    const correspondingDatasets = useMemo(() => {
+        return debts.map(debt => debt.name);
+    },[debts]);
+    return <ComboChart
+    data={[...data]}
+    options={{
+        axes: {
+          left: {
+            title: "Asset (USD)",
+            mapsTo: "asset",
+          },
+          right: {
+            title: "Debt (USD)",
+            mapsTo: "debt",
+            correspondingDatasets: correspondingDatasets,
+          },
+          bottom: {
+            title: "Months",
+            scaleType: "labels" as any,
+            mapsTo: "key",
+          },
+        },
+        comboChartTypes: [
+          {
+            type: "simple-bar",
+            options: {},
+            correspondingDatasets: ["Assets"],
+          },
+          {
+            type: "line",
+            options: {
+              points: {
+                enabled: true,
+              },
+            },
+            correspondingDatasets: correspondingDatasets,
+          },
+        ],
+        legend: {
+          alignment: "center" as any,
+        },
+        // curve: "curveNatural",
+        timeScale: {
+          addSpaceOnEdges: 0,
+        },
+        height: "600px",
+      }}
+  ></ ComboChart>;
+}
