@@ -26,7 +26,7 @@ const AboutComponent = () => {
 
                 {/* Right Part */}
                 <div className="cds--col-max-6 cds--col-xlg-6 cds--col-lg-6 cds--col-md-4 cds--col-sm-2">
-                    <p className="heading-03-body-02">At IceTee, we are a small team of passionate individuals who believe in the power of technology to enhance lives, especially in personal finance.
+                    <p className="heading-03-body-02">At IcedTee, we are a small team of passionate individuals who believe in the power of technology to enhance lives, especially in personal finance.
                         <br />
                         <br />
                         Our mission is simple: <span className="font-bold text-focus">help people improve their financial understanding and take control of their future.</span></p>

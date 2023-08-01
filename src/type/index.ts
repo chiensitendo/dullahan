@@ -122,7 +122,8 @@ export interface UserSeason {
     total_monthly_payment_debt: number,
     total_non_essential_expense: number,
     updated_at: string,
-    user_agent: string
+    user_agent: string,
+    next_n_years: number,
 }
 
 export interface LineCharData {

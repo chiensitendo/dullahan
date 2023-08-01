@@ -69,7 +69,7 @@ const BarChar = ({ item }: { item: UserSeason }) => {
     <StackedBarChart
       data={items}
       options={{
-        title: "Net Income vs Expenses comparision",
+        title: "Monthly Income vs Expenses comparision",
         axes: {
           left: {
             // mapsTo: 'group',
@@ -324,7 +324,7 @@ const ResultPage: NextPage = () => {
                   ${numberWithCommas(item.monthly_net_flow)}
                 </p>
                 <p className="helper-text-02 text-helper">
-                  Total Income - Total Expense + Debt Payment
+                  {`Total Income - (Total Expense + Debt Payment)`}
                 </p>
               </div>
             </div>
@@ -550,6 +550,7 @@ const ResultPage: NextPage = () => {
                           item.is_achived_rainyday_fund &&
                           item.is_achived_emergency_fund
                         }
+                        replaceText={!item.fun_fund  ? 'Hold off until the above milestones are reached': undefined}
                         actual={numberWithCommas(item.fun_fund)}
                       />
                     </div>
@@ -573,6 +574,7 @@ const ResultPage: NextPage = () => {
                           item.is_achived_rainyday_fund &&
                           item.is_achived_emergency_fund
                         }
+                        replaceText={item.investment === 0 ? 'Hold off until the above milestones are reached': undefined}
                         actual={numberWithCommas(item.investment)}
                       />
                     </div>
@@ -583,7 +585,7 @@ const ResultPage: NextPage = () => {
                     <div className="pr-4 pl-4 pb-4 pt-14 flex items-start justify-between">
                       <div className="flex items-start med:flex-row flex-col">
                         <p className="heading-04 mr-2">
-                          Current retirement plan
+                          Your current retirement saving estimation
                         </p>
                         {item.is_achived_retirement_plan && (
                           <Tag type="green" title="Achieved">
@@ -603,7 +605,7 @@ const ResultPage: NextPage = () => {
                           ${numberWithCommas(item.retirement_plan)}
                         </p>
                         <p className="label-02 text-helper">
-                          = Essential Expenses x 12 (months) x 10 (years)
+                          = Essential Expenses x 10 (years)
                         </p>
                       </div>
                     </div>
@@ -627,7 +629,7 @@ const ResultPage: NextPage = () => {
         <div className="cds--row flex justify-center">
           <div className="result-left pb-6 cds--col-max-4 cds--col-xlg-4 cds--col-lg-4 cds--col-md-8 cds--col-sm-4">
             <div className="flex items-start flex-col">
-              <DotItem text="How much you will have in the next 5 years" />
+              <DotItem text={`How much you will have in the next ${item?.next_n_years} years`} />
             </div>
           </div>
           <div className="result-right cds--col-max-12 cds--col-xlg-12 cds--col-lg-12 cds--col-md-8 cds--col-sm-4">
