@@ -1,26 +1,22 @@
-import React from 'react';
+import React from "react";
 import "@carbon/charts/styles.css";
 import "../app/globals.css";
-import '../styles/global.scss';
-import type { AppProps } from 'next/app'
-import Header from '@/components/Header';
-import { Provider } from 'react-redux';
-import { store } from '@/redux/store';
-// import Script from 'next/script';
+import "../styles/global.scss";
+import type { AppProps } from "next/app";
+import Header from "@/components/Header";
+import { Provider } from "react-redux";
+import { store } from "@/redux/store";
+import { ReCaptchaProvider } from "next-recaptcha-v3";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <Provider store={store}>
-    {/* <Script async src="https://www.googletagmanager.com/gtag/js?id=G-QKLXGB0SHL%22%3E"/>
-                <Script>
-                    {`window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-QKLXGB0SHL');`}
-                </Script> */}
-    <Header  enterCode/>
-    <Component {...pageProps} />
-  </Provider>
+  return (
+    <Provider store={store}>
+      <Header enterCode />
+      <ReCaptchaProvider reCaptchaKey="6LfCE3InAAAAANyChv4eJE1e6XgbZZoZHrKka5p5">
+        <Component {...pageProps} />
+      </ReCaptchaProvider>
+    </Provider>
+  );
 }
 
-export default MyApp
+export default MyApp;

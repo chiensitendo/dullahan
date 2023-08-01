@@ -550,8 +550,8 @@ const ResultPage: NextPage = () => {
                           item.is_achived_rainyday_fund &&
                           item.is_achived_emergency_fund
                         }
-                        replaceText={!item.fun_fund  ? 'Hold off until the above milestones are reached': undefined}
-                        actual={numberWithCommas(item.fun_fund)}
+                        replaceText={!item.actual_fun_fund  ? 'Hold off until the above milestones are reached': undefined}
+                        actual={numberWithCommas(item.actual_fun_fund)}
                       />
                     </div>
                   </div>

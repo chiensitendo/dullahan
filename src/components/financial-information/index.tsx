@@ -51,6 +51,7 @@ import { useInView } from "react-intersection-observer";
 import { SECTION_TABS, setActiveTab } from "@/redux/tabSlice";
 import { AuthData } from "../use-auth";
 import { Toggletip, ToggletipButton, ToggletipContent } from "../Toggletip";
+import { useReCaptcha } from "next-recaptcha-v3";
 
 const debtLabel = {
   name: "Name",
@@ -383,6 +384,8 @@ const FinancialInformation = memo(
       threshold: 1,
     });
 
+    const { executeRecaptcha } = useReCaptcha();
+
     const formRef: React.LegacyRef<HTMLFormElement> = useRef(null);
 
     useEffect(() => {
@@ -463,12 +466,12 @@ const FinancialInformation = memo(
         ],
       };
     }, [nonExpenses]);
-
     return (
       <form
         className="pb-8 dullahan-form-wrapper"
         id="dullahan-form"
         onSubmit={(e) => {
+          
           e.preventDefault();
         }}
         ref={formRef}
@@ -728,7 +731,16 @@ const FinancialInformation = memo(
             className="btn-primary"
             renderIcon={ArrowRight}
             style={{ maxWidth: "unset", height: "fit-content" }}
-            onClick={() => dispatch(submitForm())}
+            onClick={async () => {
+            
+              try {
+                const token = await executeRecaptcha("form_submit");
+                dispatch(submitForm());
+              } catch (e) {
+
+              } 
+              
+            }}
             disabled={isSubmit}
           >
             View financial report

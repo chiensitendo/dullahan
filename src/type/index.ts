@@ -124,6 +124,8 @@ export interface UserSeason {
     updated_at: string,
     user_agent: string,
     next_n_years: number,
+    actual_fun_fund: number,
+    expected_fun_fund: number,
 }
 
 export interface LineCharData {
