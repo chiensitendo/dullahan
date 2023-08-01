@@ -10,15 +10,10 @@ import {
 import { NextPage } from "next";
 
 import { StackedBarChart } from "@carbon/charts-react";
-import {
-  BUDGET_STATUS,
-  ExpenseType,
-  IncomeType,
-  UserSeason,
-} from "@/type";
+import { BUDGET_STATUS, ExpenseType, IncomeType, UserSeason } from "@/type";
 import { useMemo, useState } from "react";
 import { BUDGET_STATUS_TEXTS } from "@/type/const";
-import {  Tag } from "carbon-components-react";
+import { Tag } from "carbon-components-react";
 import ProBar from "@/components/result/ProBar";
 import DLineBar from "@/components/result/DLineBar";
 import DebtTimeline from "@/components/result/DebtTimeline";
@@ -30,6 +25,7 @@ import { RootState } from "@/redux/store";
 import BudgetRecommendation from "@/components/result/BudgetRecommendation";
 import SideMenu from "@/components/result/SideMenu";
 import { useRouter } from "next/router";
+import classNames from "classnames";
 
 const BarChar = ({ item }: { item: UserSeason }) => {
   const items = useMemo(() => {
@@ -152,11 +148,11 @@ const BudgetCup = ({
             </Tag>
           )}
         </div>
-        {!show && (
-          <p className="mt-4 result-text-overfollow body-02 text-primary">
+        <p className={classNames("mt-4 body-02 text-primary", {
+            "result-text-overfollow": !show
+          })}>
             {content}
           </p>
-        )}
 
         <span
           className="underline cursor-pointer body-02 text-primary"
@@ -174,31 +170,31 @@ const BudgetCup = ({
   );
 };
 
-const BudgetCup2 = ({
-  show,
-  content,
-  onShow,
-}: {
-  show: boolean;
-  content: string;
-  onShow: () => void;
-}) => {
-  return (
-    show && (
-      <div className="py-6 cds--col-max-12 cds--col-xlg-12 cds--col-lg-12 cds--col-md-6 cds--col-sm-3">
-        <p className="body-02 text-primary mb-2.5">{content}</p>
-        <span
-          className="underline cursor-pointer body-02 text-primary"
-          onClick={() => {
-            onShow();
-          }}
-        >
-          Show less
-        </span>
-      </div>
-    )
-  );
-};
+// const BudgetCup2 = ({
+//   show,
+//   content,
+//   onShow,
+// }: {
+//   show: boolean;
+//   content: string;
+//   onShow: () => void;
+// }) => {
+//   return (
+//     show && (
+//       <div className="py-6 cds--col-max-12 cds--col-xlg-12 cds--col-lg-12 cds--col-md-6 cds--col-sm-3">
+//         <p className="body-02 text-primary mb-2.5">{content}</p>
+//         <span
+//           className="underline cursor-pointer body-02 text-primary"
+//           onClick={() => {
+//             onShow();
+//           }}
+//         >
+//           Show less
+//         </span>
+//       </div>
+//     )
+//   );
+// };
 
 const BudgetStatus = ({
   status,
@@ -223,7 +219,7 @@ const BudgetStatus = ({
     <div>
       <div className="pt-14 px-4 pb-6">
         <p className="result-budget-status-prefix text-primary">
-        Your Financial Status is_
+          Your Financial Status is_
         </p>
         <p className={`result-budget-status ${textColor}`}>
           {statusText ? statusText : BUDGET_STATUS_TEXTS[status]}
@@ -290,25 +286,10 @@ const ResultPage: NextPage = () => {
   }, [item]);
 
   const emergencyText =
-    "It's advisable to save at least six months' worth of expenses in case of emergencies, such as losing your job or facing tough times. With six months' worth of savings, you'll have a buffer to handle any personal issues that come up. If you've already paid off all your debts, prioritize filling up this emergency fund with any extra income you earn.";
-  const rainyText = `You should save up to three months' worth of expenses
-  in case of emergencies, such as a broken laptop or
-  unexpected house maintenance. Maintaining a budget
-  like this will help you avoid tapping into your income
-  flow when these situations arise.`;
-  const funFundText = `Once you have cleared all your debts and saved enough
-  for an emergency and rainy day fund, you can start
-  allowing yourself to spend some money and enjoy life.
-  A good suggestion is to spend 20% of your remaining
-  money each month. You can even create a budget for it
-  if you have plans for a vacation. At this stage, you
-  are one step closer to financial freedom.`;
-  const investmentText = `Once you have saved enough money for leisure
-  activities, it's time to start investing. Allocate 20%
-  of your income to a fun budget and 80% to investments,
-  so your money can work for you and grow. Although it
-  may be a tiring journey, your next goal should be to
-  accumulate enough assets for early retirement.`;
+    "Having at least six months' expenses saved up acts as a safety net for life's unexpected challenges. It provides peace of mind during tough times, like job loss or emergencies, giving you the breathing room to recover without financial worries. If you're debt-free, consider prioritizing this emergency fund to invest in your stability and resilience.";
+  const rainyText = `Setting aside an additional three months' worth of expenses for a rainy day is a wise step. Picture it as a financial umbrella for those unexpected moments, like a broken laptop or sudden house repairs. Having this extra savings cushion ensures that you won't have to dip into your regular income when these situations pop up. It's a practical way to stay prepared and safeguard your financial stability.`;
+  const funFundText = `When you've worked hard to clear all your debts and build up a solid emergency and rainy day fund, it's time to reward yourself and start savoring the fruits of your labor. You can allocate about 20% of your remaining money each month for some well-deserved enjoyment like new experiences, a vacation, or simply things that bring you joy, go ahead and create a budget for it. By reaching this stage, you're making significant progress toward achieving financial freedom. Enjoy the journey!`;
+  const investmentText = `Now that you've set aside enough money, it's an exciting moment to explore the world of investments. Putting up to 80% of your income into investments that have the potential to grow your money and work for you. This step brings you closer to building assets for early retirement, which is an excellent goal to pursue. Keep a watchful eye on your expenses, and don't lose sight of your financial goals. Regularly reviewing your spending habits and making adjustments will help you stay on track.`;
 
   return (
     <div className="result-page h-full w-full bg-white">
@@ -335,13 +316,15 @@ const ResultPage: NextPage = () => {
               <div className="flex items-start flex-col">
                 <DotItem text="Overview" />
                 <p className="text-primary result-text mt-6 mb-2">
-                Monthly Financial Performance
+                  Monthly Financial Performance
                 </p>
-                <p className="heading-06 text-black mb-2">
+                <p className={classNames("heading-06 text-black mb-2", {
+                  "text-secondary": item.monthly_net_flow < 0 
+                })}>
                   ${numberWithCommas(item.monthly_net_flow)}
                 </p>
                 <p className="helper-text-02 text-helper">
-                Total Income - Total Expense + Debt Payment
+                  Total Income - Total Expense + Debt Payment
                 </p>
               </div>
             </div>
@@ -378,7 +361,11 @@ const ResultPage: NextPage = () => {
                             Total expenses
                           </span>
                           <p className="heading-04 text-primary mb-2">
-                            ${numberWithCommas(item.total_all_expense + item.total_monthly_payment_debt)}
+                            $
+                            {numberWithCommas(
+                              item.total_all_expense +
+                                item.total_monthly_payment_debt
+                            )}
                           </p>
                           <p className="helper-text-02 text-helper">
                             Including debt paid off each month
@@ -449,7 +436,7 @@ const ResultPage: NextPage = () => {
                   <div className="result-target-col cds--col-max-16 cds--col-xlg-16 cds--col-lg-16 cds--col-md-8 cds--col-sm-4">
                     <div className="pr-4">
                       <p className="py-6 med:px-4 px-0 result-budget-cup">
-                      Budget Cup Recommendation
+                        Budget Cup Recommendation
                       </p>
                     </div>
                   </div>
@@ -516,15 +503,15 @@ const ResultPage: NextPage = () => {
                       />
                     </div>
                   </div>
-                  <BudgetCup2
+                  {/* <BudgetCup2
                     show={showEmergency}
                     content={emergencyText}
                     onShow={() => setShowEmergency(!showEmergency)}
-                  />
+                  /> */}
                 </div>
                 <div className="cds--row result-border-bottom">
                   <div className="result-target-col cds--col-max-8 cds--col-xlg-8 cds--col-lg-8 cds--col-md-4 cds--col-sm-2">
-                  <BudgetCup
+                    <BudgetCup
                       title="Rainy Day Fund"
                       show={showRainy}
                       isAchived={item.is_achived_rainyday_fund}
@@ -544,15 +531,10 @@ const ResultPage: NextPage = () => {
                       />
                     </div>
                   </div>
-                  <BudgetCup2
-                    show={showRainy}
-                    content={rainyText}
-                    onShow={() => setShowRainy(!showRainy)}
-                  />
                 </div>
                 <div className="cds--row result-border-bottom">
                   <div className="result-target-col cds--col-max-8 cds--col-xlg-8 cds--col-lg-8 cds--col-md-4 cds--col-sm-2">
-                  <BudgetCup
+                    <BudgetCup
                       title="Fun Fund"
                       show={showFunfund}
                       isAchived={false}
@@ -564,20 +546,18 @@ const ResultPage: NextPage = () => {
                     <div className="pl-4 pt-12 flex items-center w-full">
                       <ProBar
                         value={0}
-                        isUnlimited={item.is_achived_rainyday_fund && item.is_achived_emergency_fund}
+                        isUnlimited={
+                          item.is_achived_rainyday_fund &&
+                          item.is_achived_emergency_fund
+                        }
                         actual={numberWithCommas(item.fun_fund)}
                       />
                     </div>
                   </div>
-                  <BudgetCup2
-                    show={showFunfund}
-                    content={funFundText}
-                    onShow={() => setShowFunfund(!showFunfund)}
-                  />
                 </div>
                 <div className="cds--row result-border-bottom">
                   <div className="result-target-col cds--col-max-8 cds--col-xlg-8 cds--col-lg-8 cds--col-md-4 cds--col-sm-2">
-                  <BudgetCup
+                    <BudgetCup
                       title="Investment account"
                       show={showInvestment}
                       isAchived={item.is_achived_investment}
@@ -589,22 +569,22 @@ const ResultPage: NextPage = () => {
                     <div className="pl-4 pt-12 flex items-center w-full">
                       <ProBar
                         value={0}
-                        isUnlimited={item.is_achived_rainyday_fund && item.is_achived_emergency_fund}
+                        isUnlimited={
+                          item.is_achived_rainyday_fund &&
+                          item.is_achived_emergency_fund
+                        }
                         actual={numberWithCommas(item.investment)}
                       />
                     </div>
                   </div>
-                  <BudgetCup2
-                    show={showInvestment}
-                    content={investmentText}
-                    onShow={() => setShowInvestment(!showInvestment)}
-                  />
                 </div>
                 <div className="cds--row result-border-bottom result-border-left result-border-right">
                   <div className="result-target-col cds--col-max-8 cds--col-xlg-8 cds--col-lg-8 cds--col-md-4 cds--col-sm-2">
                     <div className="pr-4 pl-4 pb-4 pt-14 flex items-start justify-between">
                       <div className="flex items-start med:flex-row flex-col">
-                        <p className="heading-04 mr-2">Current retirement plan</p>
+                        <p className="heading-04 mr-2">
+                          Current retirement plan
+                        </p>
                         {item.is_achived_retirement_plan && (
                           <Tag type="green" title="Achieved">
                             Achieved
@@ -632,10 +612,7 @@ const ResultPage: NextPage = () => {
                     className="cds--col-max-16 cds--col-xlg-16 cds--col-lg-16 cds--col-md-8 cds--col-sm-4"
                     style={{ paddingLeft: 0, paddingRight: 0 }}
                   >
-                    <img
-                      className="w-full"
-                      src="/images/saving.svg"
-                    />
+                    <img className="w-full" src="/images/saving.svg" />
                   </div>
                 </div>
               </div>
@@ -655,13 +632,20 @@ const ResultPage: NextPage = () => {
           </div>
           <div className="result-right cds--col-max-12 cds--col-xlg-12 cds--col-lg-12 cds--col-md-8 cds--col-sm-4">
             <div className="p-4 result-border">
-              <DLineBar data={lineChart?.data ? lineChart.data : []} debts={lineChart?.debts ? lineChart.debts: []} />
+              <DLineBar
+                data={lineChart?.data ? lineChart.data : []}
+                debts={lineChart?.debts ? lineChart.debts : []}
+              />
             </div>
           </div>
         </div>
       </div>
       {timelineChart?.data && <DebtTimeline items={timelineChart.data} />}
-      <ResultFooter code={item?.code} showCopy ={showCopy} onCopy={() => setShowCopy(true)} />
+      <ResultFooter
+        code={item?.code}
+        showCopy={showCopy}
+        onCopy={() => setShowCopy(true)}
+      />
       {item && (
         <SideMenu
           item={item}

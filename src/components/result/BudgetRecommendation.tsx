@@ -23,9 +23,8 @@ const BudgetRecommendation = ({ item }: { item: UserSeason }) => {
           }
         >
           <p>
-            It is important to take steps to increase your income or decrease
-            your expenses (especially considering cutting off your non-essential
-            budget totally) in order to bring your budget back into balance.
+          {`It is important to take steps to increase your income or decrease your expenses (especially considering cutting off your non-essential budget totally) in order to bring your budget back into balance.`}
+
           </p>
         </AccordionItem>
       );
@@ -210,6 +209,25 @@ const BudgetRecommendation = ({ item }: { item: UserSeason }) => {
             {`It is tiring to not have any extra for emergencies, consider
             increasing your income or decreasing expenses. Cutting off all
             non-essential expenses for the time being is highly recommended`}
+          </p>
+        </AccordionItem>
+      );
+    }
+    if (item.current_balance >= 1000000) {
+      list.push(
+        <AccordionItem
+          key={list.length}
+          title={
+            <div className="flex items-center py-4">
+              <p>Hello Millionaire</p>
+              <Tag style={{ marginLeft: "8px" }} type="green" title="Good">
+                Good
+              </Tag>
+            </div>
+          }
+        >
+          <p>
+            {`Hello Mr/Mrs. Millionaire, we can see you already have more than 1 million dollars, not sure how much we can help you with but please do enjoy the show. Stay awesome!`}
           </p>
         </AccordionItem>
       );
