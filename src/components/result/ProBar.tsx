@@ -20,7 +20,7 @@ const Bar =({value}: {value: number})=>{
     </div>
 }
 
-const ProBar = ({value, isUnlimited, actual, expected, replaceText}: {value: number, actual: string, expected?: string, isUnlimited?: boolean, replaceText?: string}) => {
+const ProBar = ({value, isUnlimited, actual, expected, replaceText, customUnlimited}: {value: number, actual: string, expected?: string, isUnlimited?: boolean, replaceText?: string, customUnlimited?: string}) => {
     const renderText = useMemo(() => {
         if (replaceText) return replaceText;
         return `$${actual}`;
@@ -44,14 +44,15 @@ const ProBar = ({value, isUnlimited, actual, expected, replaceText}: {value: num
                 }}>/</p>
                 </div>
                 <div><p className="heading-03 text-primary" >${expected}</p>
-                <p className="label-02 text-helper" >= 6 months of expenses</p></div>
+                <p className="label-02 text-helper" >= 3 months of expenses</p></div>
             </div>}
         </div>
         {!expected && <div className="pt-8"></div>}
         <div className="flex items-center justify-between mb-2" >
             {!isUnlimited && <p className="body-02">{expected ? `${value}%` : ''}</p>}
-            {isUnlimited && <p className="body-02">Unlimited</p>}
+            {isUnlimited && <p className="body-02">{!customUnlimited ? 'Unlimited': customUnlimited}</p>}
             {!isUnlimited && value >= 100 && <StatusIcon/>}
+            {isUnlimited && replaceText && <StatusIcon/>}
             {!isUnlimited && value > 0 && value < 100 && <WarnIcon/>}
             {((!isUnlimited && !expected) || isNaN(value) ||  (expected && value === 0)) && <ErrorIcon/>}
         </div>

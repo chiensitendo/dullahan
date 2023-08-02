@@ -547,6 +547,7 @@ const ResultPage: NextPage = () => {
                         isUnlimited={
                           item.actual_fun_fund > 0
                         }
+                        customUnlimited = {"Estimated Monthly Allowance"}
                         replaceText={!item.actual_fun_fund  ? 'Hold off until the above milestones are reached': undefined}
                         actual={numberWithCommas(item.actual_fun_fund)}
                       />
@@ -566,11 +567,12 @@ const ResultPage: NextPage = () => {
                   <div className="result-target-col cds--col-max-8 cds--col-xlg-8 cds--col-lg-8 cds--col-md-4 cds--col-sm-2">
                     <div className="pl-4 pt-12 flex items-center w-full">
                       <ProBar
-                        value={0}
+                        value={item.is_achived_investment ? 100: 0}
                         isUnlimited={
-                          item.investment > 0
+                          item.is_achived_investment
                         }
-                        replaceText={item.investment === 0 ? 'Hold off until the above milestones are reached': undefined}
+                        customUnlimited=" "
+                        replaceText={item.is_achived_investment ? 'Financial ready to consider investing': 'Hold off until the above milestones are reached'}
                         actual={numberWithCommas(item.investment)}
                       />
                     </div>

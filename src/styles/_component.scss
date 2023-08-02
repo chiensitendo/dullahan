@@ -281,6 +281,9 @@
 
 .result-page {
     --border-color: #E0E0E0;
+    .cds--tag {
+        min-width: 68px !important;
+    }
 }
 
 .result-right-left {
