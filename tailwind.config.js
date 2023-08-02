@@ -38,6 +38,7 @@ module.exports = {
         achieved:'#47D28F',
         warn:'#F1C21B',
         low:'#FA4D56',
+        modal: '#161616',
       },
       textColor: {
         link: '#78A9FF',

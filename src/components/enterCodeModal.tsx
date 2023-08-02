@@ -36,7 +36,7 @@ const EnterCodeModal = () => {
         <ModalWrapper
             className="modal-wrapper enter-code-modal"
             modalHeading="Enter the code to reload your saved report"
-            primaryButtonText="Reload saved result"
+            primaryButtonText="Reload saved report"
             secondaryButtonText="Cancel"
             primaryButtonDisabled = {!code}
             onRequestSubmit={e => {

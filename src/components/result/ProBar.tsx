@@ -20,7 +20,7 @@ const Bar =({value}: {value: number})=>{
     </div>
 }
 
-const ProBar = ({value, isUnlimited, actual, expected, replaceText, customUnlimited}: {value: number, actual: string, expected?: string, isUnlimited?: boolean, replaceText?: string, customUnlimited?: string}) => {
+const ProBar = ({value, isUnlimited, actual, expected, replaceText, customUnlimited, month}: {month?: number, value: number, actual: string, expected?: string, isUnlimited?: boolean, replaceText?: string, customUnlimited?: string}) => {
     const renderText = useMemo(() => {
         if (replaceText) return replaceText;
         return `$${actual}`;
@@ -44,7 +44,7 @@ const ProBar = ({value, isUnlimited, actual, expected, replaceText, customUnlimi
                 }}>/</p>
                 </div>
                 <div><p className="heading-03 text-primary" >${expected}</p>
-                <p className="label-02 text-helper" >= 3 months of expenses</p></div>
+                <p className="label-02 text-helper" >= ${month} months of expenses</p></div>
             </div>}
         </div>
         {!expected && <div className="pt-8"></div>}

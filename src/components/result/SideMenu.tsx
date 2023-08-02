@@ -61,7 +61,8 @@ const SideMenu = ({
   }, [item]);
 
   return (
-    <SideNav
+    <React.Fragment>
+      <SideNav
       isFixedNav
       addMouseListeners={true}
       addFocusListeners={true}
@@ -88,7 +89,7 @@ const SideMenu = ({
         </h3>
         <Close className="cursor-pointer fill-text" onClick={() => onExpanded(false)} width={16} height={16} />
       </div>
-      <div className="px-6">
+      <div className="px-6 pb-6">
         <div>
           <div className="flex items-center justify-between pt-6 pb-2">
             <h3 className="heading-03 text-primary">Income</h3>
@@ -202,6 +203,8 @@ const SideMenu = ({
         </div>
       </div>      
     </SideNav>
+    {expanded && <div className="fixed w-full h-full left-0 top-0 z-10 bg-modal" style={{opacity: 0.4}}></div>}
+    </React.Fragment>
   );
 };
 

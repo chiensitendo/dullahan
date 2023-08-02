@@ -23,7 +23,7 @@ const Header = (props: HeaderProps) => {
     const router = useRouter();
     return <React.Fragment>
         <div className="background py-3 px-8 flex items-center justify-between sticky top-0 left-0 z-10">
-        <img className="h-10 cursor-pointer" onClick={() => router.push("/")} src={"/icons/logo.svg"} alt="logo"/>
+        <img className="h-10 cursor-pointer" onClick={() => router.push("/")} src={"/icons/logov2.svg"} alt="logo"/>
         {enterCode && <EnterCode onClick= {() => {
             if (isChanged) {
                 dispatch(triggerWarning());

@@ -490,6 +490,7 @@ const ResultPage: NextPage = () => {
                   <div className="result-target-col cds--col-max-8 cds--col-xlg-8 cds--col-lg-8 cds--col-md-4 cds--col-sm-2">
                     <div className="pl-4 pt-12 flex items-center w-full">
                       <ProBar
+                        month={6}
                         value={getPercentNumber(
                           item.actual_emergency_fund,
                           item.expected_emergency_fund
@@ -524,6 +525,7 @@ const ResultPage: NextPage = () => {
                           item.actual_rainyday_fund,
                           item.expected_rainyday_fund
                         )}
+                        month={3}
                         actual={numberWithCommas(item.actual_rainyday_fund)}
                         expected={numberWithCommas(item.expected_rainyday_fund)}
                       />
