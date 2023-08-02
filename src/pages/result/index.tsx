@@ -30,39 +30,37 @@ import classNames from "classnames";
 const BarChar = ({ item }: { item: UserSeason }) => {
   const items = useMemo(() => {
     const list: any[] = [];
-    if (item.incomes) {
-      item.incomes.forEach((income) => {
-        list.push({
-          group:
-            income.type === IncomeType.FIXED_INCOME
-              ? "Active income"
-              : "Passive income",
-          key: "Income",
-          value: income.amount,
-        });
-      });
-    }
-    if (item.expenses) {
-      item.expenses.forEach((expense) => {
-        list.push({
-          group:
-            expense.type === ExpenseType.EXPENSE
-              ? "Essential expenses"
-              : "Non-ssential expenses",
-          key: "Expense",
-          value: expense.amount,
-        });
-      });
-    }
-    if (item.debts) {
-      item.debts.forEach((debt) => {
-        list.push({
-          group: "Debt",
-          key: "Expense",
-          value: debt.monthly_payment,
-        });
-      });
-    }
+    list.push({
+      group: "Active income",
+      key: "Income",
+      value: !item.incomes ? 0: item.incomes.filter(income => income.type === IncomeType.FIXED_INCOME)
+      .reduce((acc, income) => (!income.amount? 0: +income.amount) + acc, 0),
+    });
+    list.push({
+      group: "Passive income",
+      key: "Income",
+      value: !item.incomes ? 0: item.incomes.filter(income => income.type === IncomeType.PASSIVE_INCOME)
+      .reduce((acc, income) => (!income.amount? 0: +income.amount) + acc, 0),
+    });
+    list.push({
+      group: "Essential expenses",
+      key: "Expense",
+      value: !item.expenses ? 0: item.expenses.filter(expense => expense.type === ExpenseType.EXPENSE)
+      .reduce((acc, expense) => (!expense.amount? 0: +expense.amount) + acc, 0),
+    });
+    list.push({
+      group: "Non-essential expenses",
+      key: "Expense",
+      value: !item.expenses ? 0: item.expenses.filter(expense => expense.type === ExpenseType.NON_EXPENSE)
+      .reduce((acc, expense) => (!expense.amount? 0: +expense.amount) + acc, 0),
+    });
+
+    list.push({
+      group: "Debt",
+      key: "Expense",
+      value: !item.debts ? 0: item.debts
+      .reduce((acc, debts) => (!debts.monthly_payment? 0: +debts.monthly_payment) + acc, 0),
+    });
     return list;
   }, [item]);
   return (
