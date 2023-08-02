@@ -228,7 +228,7 @@ const BudgetStatus = ({
       <div>
         <img
           className="w-full max-w-full"
-          src={`/images/illus-${budgetStatus}.svg`}
+          src={`/images/${budgetStatus}.svg`}
         />
       </div>
     </div>
@@ -547,8 +547,7 @@ const ResultPage: NextPage = () => {
                       <ProBar
                         value={0}
                         isUnlimited={
-                          item.is_achived_rainyday_fund &&
-                          item.is_achived_emergency_fund
+                          item.actual_fun_fund > 0
                         }
                         replaceText={!item.actual_fun_fund  ? 'Hold off until the above milestones are reached': undefined}
                         actual={numberWithCommas(item.actual_fun_fund)}
@@ -571,8 +570,7 @@ const ResultPage: NextPage = () => {
                       <ProBar
                         value={0}
                         isUnlimited={
-                          item.is_achived_rainyday_fund &&
-                          item.is_achived_emergency_fund
+                          item.investment > 0
                         }
                         replaceText={item.investment === 0 ? 'Hold off until the above milestones are reached': undefined}
                         actual={numberWithCommas(item.investment)}

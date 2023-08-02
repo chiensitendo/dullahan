@@ -27,7 +27,10 @@ const ProBar = ({value, isUnlimited, actual, expected, replaceText}: {value: num
     },[actual, replaceText]);
     return <div className="w-full">
         <div className="flex items-center justify-start flex-wrap mb-7">
-            <p className="heading-06-05 mr-2">{renderText}</p>
+            <p className="heading-06-05 mr-2" style={{
+                fontSize: !replaceText ? undefined: '28px',
+                lineHeight: !replaceText ? undefined: '36px',
+            }}>{renderText}</p>
             {expected && <div className="result-slash-container flex items-center justify-start">
                 <div className="flex items-center justify-center mr-2" style={{
                     paddingBottom: '4px'
