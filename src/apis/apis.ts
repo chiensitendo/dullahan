@@ -3,7 +3,7 @@ import publicAxios from "./publicAxios";
 import { AuthData } from "@/components/use-auth";
 import { CredentialData, CustomerDebtCreationData, CustomerExpenseCreationData, CustomerExpenseCreationDataRequest, CustomerIncomeCreationData, CustomerIncomeCreationDataRequest, CustomerMeUpdateData, Debt, LineChartDataResponse, TimelineChartDataResponse, UserSeason } from "@/type";
 
-const SERVER_URL = "https://56b2m5gkm5.execute-api.ap-southeast-1.amazonaws.com/dev/v1";
+const SERVER_URL = "https://dwvpkcpcua.execute-api.ap-southeast-1.amazonaws.com";
 
 const generateAuthToken = (auth: AuthData) => {
     if (!auth || !auth.access_token) {
